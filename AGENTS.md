@@ -73,6 +73,7 @@
 - AddViewForm 尚無日曆選用設定入口的定案畫面
 - ListScreen 篩選按鈕點擊後的條件編輯面板尚無定案
 - 篩選入口與已套用條件展示已定案，可先實作，不必等面板
+- workflow 轉換規則管理畫面已定案：`30_screens/no8_workflow_transition_screen/`，左欄選工單型別、右側狀態／轉換／結案原因三區塊，供 impl 逐名對齊
 
 ---
 
