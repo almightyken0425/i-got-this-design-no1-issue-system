@@ -67,12 +67,11 @@
 
 ## 設計待辦
 
-- login screen 尚無定案畫面
-- impl 端暫用既有 token 組裝
-- 待補後供 impl 逐名對齊
-- AddViewForm 尚無日曆選用設定入口的定案畫面
+- login screen 已定案：`30_screens/no7_login_screen/`，login／register 兩 variant，供 impl 逐名對齊
+- AddViewForm 日曆選用設定入口已由 impl 端接上（既有 Select 元件組裝），design 未另立專屬工件
 - ListScreen 篩選按鈕點擊後的條件編輯面板尚無定案
 - 篩選入口與已套用條件展示已定案，可先實作，不必等面板
+- workflow 轉換規則管理畫面尚無定案：狀態、轉換（含 requiredRole／必填欄位）、結案原因三個子清單的 CRUD 介面，spec 見 no3_logics/no4_workflow_logic.md 的 updateWorkflowDefinition
 
 ---
 

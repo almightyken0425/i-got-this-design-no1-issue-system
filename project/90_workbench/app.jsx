@@ -72,6 +72,12 @@ const SCREEN_GROUPS = [
       { id: 'type-definition', label: 'Type Definition · 型別定義', render: () => <ScreenTypeDefinitionSection/> },
     ],
   },
+  {
+    id: 'auth', label: 'Auth',
+    topics: [
+      { id: 'login', label: 'Login · 登入 / 註冊', render: () => <ScreenLoginSection/> },
+    ],
+  },
 ];
 
 // EXPLORATION_GROUPS — 多版本提案主題；每 group 一個主題、topic 為探索軸。
