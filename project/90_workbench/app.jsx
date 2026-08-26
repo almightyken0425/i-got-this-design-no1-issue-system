@@ -70,6 +70,7 @@ const SCREEN_GROUPS = [
     id: 'admin', label: 'Admin',
     topics: [
       { id: 'type-definition', label: 'Type Definition · 型別定義', render: () => <ScreenTypeDefinitionSection/> },
+      { id: 'workflow-transition', label: 'Workflow Transition · 流程轉換規則', render: () => <ScreenWorkflowTransitionSection/> },
     ],
   },
   {

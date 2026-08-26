@@ -71,7 +71,7 @@
 - AddViewForm 日曆選用設定入口已由 impl 端接上（既有 Select 元件組裝），design 未另立專屬工件
 - ListScreen 篩選按鈕點擊後的條件編輯面板尚無定案
 - 篩選入口與已套用條件展示已定案，可先實作，不必等面板
-- workflow 轉換規則管理畫面尚無定案：狀態、轉換（含 requiredRole／必填欄位）、結案原因三個子清單的 CRUD 介面，spec 見 no3_logics/no4_workflow_logic.md 的 updateWorkflowDefinition
+- workflow 轉換規則管理畫面已定案：`30_screens/no8_workflow_transition_screen/`，左欄選工單型別、右側狀態／轉換／結案原因三區塊，供 impl 逐名對齊
 
 ---
 
