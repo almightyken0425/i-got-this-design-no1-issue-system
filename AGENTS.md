@@ -69,7 +69,7 @@
 
 - login screen 已定案：`30_screens/no7_login_screen/`，login／register 兩 variant，供 impl 逐名對齊
 - AddViewForm 日曆選用設定入口已由 impl 端接上（既有 Select 元件組裝），design 未另立專屬工件
-- ListScreen 篩選按鈕點擊後的條件編輯面板尚無定案
+- ListScreen 篩選按鈕點擊後的條件編輯面板已定案：比照既有 `ColumnConfigPanel` 模式，錨定按鈕下方 absolute 定位、點外部收合，不開新的 popover 元件；面板內每列一個條件（欄位下拉＋值輸入＋移除鈕），「新增條件」／「套用」／「取消」三顆按鈕，開啟時帶入目前已套用條件；後端 `FilterCondition` 只認 `equals`、多條件全 AND，面板不呈現不存在的運算子選項。量體屬既有 impl 自訂範圍，design 不另立專屬 JSX 工件（比照 AddViewForm 前例）
 - 篩選入口與已套用條件展示已定案，可先實作，不必等面板
 - workflow 轉換規則管理畫面已定案：`30_screens/no8_workflow_transition_screen/`，左欄選工單型別、右側狀態／轉換／結案原因三區塊，供 impl 逐名對齊
 
