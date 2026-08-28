@@ -107,7 +107,7 @@ function IntroSection() {
           <IntroTitle>數字前綴 = 顯示順序 = 概念順序</IntroTitle>
           <IntroBody>
             <pre style={fileTreeStyle}>{`project/
-├── IGotThis.html                  主入口（瀏覽器直接打開）
+├── i-got-this.html                  主入口（瀏覽器直接打開）
 ├── 00_intro/intro.jsx             這個分頁的內容
 ├── 10_foundations/                設計標準權威
 │   ├── no1_atomic_tokens.jsx      PALETTE / PRIMARY_PINE / THEMES / SHADOW_ELEVATION
@@ -121,7 +121,7 @@ function IntroSection() {
 │   ├── no1_controls.jsx           Button / Select / TextInput / Badge / Avatar / Chip
 │   ├── no2_data_display.jsx       DataTable / KanbanColumn / KanbanCard / EmptyState
 │   ├── no3_gantt_nav.jsx          Gantt 三件 / SortableRow / LevelSwitcher / Toolbar
-│   └── components-showcase.jsx    Foundations > Components 三個 leaf 的 section
+│   └── components_showcase.jsx    Foundations > Components 三個 leaf 的 section
 ├── 30_screens/                    一畫面一子目錄，畫面本體 + 自己的 canvas section
 │   ├── no1_list_screen/           ListScreen + ScreenListSection
 │   ├── no2_kanban_screen/         KanbanScreen + ScreenKanbanSection
@@ -129,7 +129,7 @@ function IntroSection() {
 ├── 50_explorations/               多版本提案，決策前隔離
 └── 90_workbench/
     ├── app.jsx                    router + SideTOC + 三組 GROUPS 常數
-    └── design-canvas.jsx          DesignCanvas / DCSection / DCFamily / DCArtboard`}</pre>
+    └── design_canvas.jsx          DesignCanvas / DCSection / DCFamily / DCArtboard`}</pre>
             <p style={{ fontSize: 13, color: TOKENS.ink2, lineHeight: 1.6, marginTop: 12 }}>
               數字前綴保證檔案系統顯示順序與概念順序一致。新增分頁挑空著的 10 倍數段落。
             </p>

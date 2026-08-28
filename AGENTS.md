@@ -17,7 +17,7 @@
 
 ## 工件結構
 
-- `project/IGotThis.html`
+- `project/i-got-this.html`
   - 是瀏覽器入口
 - `90_workbench/app.jsx`
   - 承載 router
@@ -34,6 +34,18 @@
   - 承載畫面工件
 - `50_explorations/`
   - 承載隔離探索
+
+---
+
+## 命名規則
+
+- remote repo 使用 `i-got-this-design-no1-issue-system`。
+- 入口檔使用產品 slug `project/i-got-this.html`。
+- Design stage 目錄固定使用兩位數 `NN_lowercase_snake_case`。
+- stage 內目錄與檔案使用 `lowercase_snake_case`。
+- 有順序的工件使用 `noN_lowercase_snake_case`，序號不補零。
+- React export 與瀏覽器全域識別字保留程式碼慣例。
+- `AGENTS.md`、`CLAUDE.md` 與 `README.md` 保留平台約定名稱。
 
 ---
 
