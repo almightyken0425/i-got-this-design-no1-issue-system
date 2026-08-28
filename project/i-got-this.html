@@ -37,7 +37,7 @@
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 
   <!-- Workbench infrastructure (design canvas) -->
-  <script type="text/babel" src="90_workbench/design-canvas.jsx"></script>
+  <script type="text/babel" src="90_workbench/design_canvas.jsx"></script>
 
   <!-- Foundations atomic 層（嚴格依序：atomic → typography → layout） -->
   <script type="text/babel" src="10_foundations/no1_atomic_tokens.jsx"></script>
@@ -66,8 +66,8 @@
   <!-- Explorations · 多版本提案主題（決策前隔離，選定後才回寫 Foundations） -->
   <script type="text/babel" src="50_explorations/no1_color_directions/no1_color_directions.jsx"></script>
 
-  <!-- Components showcase · 消費 20_components 三檔與 design-canvas 的 DC 原語，故排在最後 -->
-  <script type="text/babel" src="20_components/components-showcase.jsx"></script>
+  <!-- components_showcase · 消費 20_components 三檔與 design_canvas 的 DC 原語，故排在最後 -->
+  <script type="text/babel" src="20_components/components_showcase.jsx"></script>
 
   <!-- Screens · 消費 20_components 三檔與 DC 原語，一檔一畫面 + 該畫面的 canvas section。
        dev order 三檔嚴格依序：tokens → subsections（載入時即用 tokens 生日資料）→ 畫面本體 -->
