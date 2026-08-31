@@ -71,6 +71,7 @@ const SCREEN_GROUPS = [
     topics: [
       { id: 'type-definition', label: 'Type Definition · 型別定義', render: () => <ScreenTypeDefinitionSection/> },
       { id: 'workflow-transition', label: 'Workflow Transition · 流程轉換規則', render: () => <ScreenWorkflowTransitionSection/> },
+      { id: 'container-management', label: '組織管理', render: () => <ScreenContainerManagementSection/> },
     ],
   },
   {
