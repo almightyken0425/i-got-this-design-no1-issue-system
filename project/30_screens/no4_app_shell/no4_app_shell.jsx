@@ -91,6 +91,7 @@ const APP_SHELL_MODES = [
   { id: 'list',      label: '工單清單' },
   { id: 'kanban',    label: '工單看板' },
   { id: 'dev-order', label: '開發順序表' },
+  { id: 'organization', label: '組織管理' },
 ];
 
 const APP_SHELL_ACCOUNT = '成員甲';

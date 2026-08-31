@@ -283,11 +283,11 @@ function LS_FilterChipBar({ theme, filters = [] }) {
 }
 
 // ─── LS_CreateIssueBar ─── 建立工單的行內表單
-// 區域性小元件：點擊工具列的建立工單即在內容區展開，Enter 或按建立送出，
-// 按取消收合。只收標題一個欄位——工單集與工單型別現階段由工作區單一預設
-// 帶入，前端尚未開放選擇，對側 impl（ListScreen.tsx 的 CreateIssueBar）同形。
+// 建單表單使用當前檢視可建立的工單集與公司工單型別。
 function LS_CreateIssueBar({ theme, onSubmit, onCancel }) {
   const [title, setTitle] = React.useState('');
+  const [issueSet, setIssueSet] = React.useState('second');
+  const [issueType, setIssueType] = React.useState('task');
   const submit = () => {
     const trimmed = title.trim();
     if (trimmed === '') return;
@@ -297,7 +297,7 @@ function LS_CreateIssueBar({ theme, onSubmit, onCancel }) {
     <div
       onKeyDown={(e) => { if (e.key === 'Enter') submit(); }}
       style={{
-        display: 'flex', alignItems: 'center',
+        display: 'flex', flexDirection: 'column',
         gap: LIST_SCREEN_TOKENS.CREATE_BAR_GAP,
         padding: LIST_SCREEN_TOKENS.CREATE_BAR_PADDING,
         borderRadius: LIST_SCREEN_TOKENS.CREATE_BAR_RADIUS,
@@ -305,12 +305,23 @@ function LS_CreateIssueBar({ theme, onSubmit, onCancel }) {
         border: `${BORDER_WIDTH.hairline}px solid ${theme.border.base}`,
       }}
     >
+      <Select theme={theme} prefix="工單集" fullWidth value={issueSet} onChange={setIssueSet} options={[
+        { value: 'second', label: '產品團隊 / 第二產品 / 開發 / 產品待辦 · SECOND' },
+        { value: 'ops', label: '產品團隊 / 第二產品 / 維護 / 維護工作 · OPS' },
+      ]} />
+      <Select theme={theme} prefix="工單型別" fullWidth value={issueType} onChange={setIssueType} options={[
+        { value: 'task', label: '工單' }, { value: 'request', label: '需求' },
+      ]} />
+      <label>標題
       <TextInput
         theme={theme} leadingIcon="plus" placeholder="輸入工單標題後按 Enter 建立"
         value={title} onChange={setTitle} fullWidth style={{ flex: 1 }}
       />
+      </label>
+      <div style={{ display: 'flex', gap: LIST_SCREEN_TOKENS.CREATE_BAR_GAP }}>
       <Button theme={theme} variant="primary" label="建立" onClick={submit} />
       <Button theme={theme} variant="ghost" label="取消" onClick={onCancel} />
+      </div>
     </div>
   );
 }
@@ -452,7 +463,7 @@ function ScreenListSection() {
 
       <DCFamily
         id="ls-creating" title="Creating"
-        subtitle="點建立工單展開行內表單，只收標題。Enter 或按建立送出，按取消收合。"
+        subtitle="選擇工單集與工單型別後輸入標題。送出失敗時保留輸入。"
       >
         <DCArtboard id="ls-creating-light" label="creating · THEME_LIGHT (live)" width={W} height="auto">
           <ListScreen variant="creating" theme={THEME_LIGHT} />
