@@ -1,5 +1,5 @@
 
-// DesignCanvas.jsx — Figma-ish design canvas wrapper
+// - Figma-style design canvas wrapper
 // Warm gray grid bg + Sections + Artboards + PostIt notes.
 // Artboards are reorderable (grip-drag), labels/titles are inline-editable,
 // and any artboard can be opened in a fullscreen focus overlay (←/→/Esc).
