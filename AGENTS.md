@@ -11,7 +11,7 @@
 - Spec git 仲裁資料與邏輯
 - 本 repo 仲裁視覺與互動
 - Impl git 跟進設計定案
-- 配對以 `decision_framework_router` 的註冊表為準
+- 配對以 `product-scope` 的註冊表為準
 
 ---
 
@@ -89,9 +89,9 @@
 
 ## 原生工作規則
 
-- 任何改動先使用 `decision_framework_router`
-- Markdown 改動使用 `universal_writing_linter`
-- JSX 不套用 `spec_writer`
+- 任何改動先使用 `product-scope`
+- Markdown 改動使用 `doc-markdown`
+- JSX 不套用 `code-spec`
 - 同步範圍依註冊表 sub mapping
 - 跨層 branch 名稱必須一致
 - 配對 commit 內容必須一致
