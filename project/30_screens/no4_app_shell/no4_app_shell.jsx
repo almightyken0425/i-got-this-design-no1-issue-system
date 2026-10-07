@@ -38,9 +38,9 @@ const APP_SHELL_TOKENS = {
   BASE_WIDTH:  1280,                       // (literal: 桌面瀏覽器基準寬，與其餘畫面同寬)
   BASE_HEIGHT: 720,                        // (literal: 外殼要看滿版比例，故給定高)
 
-  SIDEBAR_WIDTH:        SPACING['3xl'] * 5,  // 200
-  SIDEBAR_PADDING:      SPACING.md,          // 12
-  SIDEBAR_GAP:          SPACING.lg,          // 16
+  SIDEBAR_WIDTH:        SPACING['4xl'] * 4 + SPACING.lg,  // 200
+  SIDEBAR_PADDING:      SPACING.lg,          // 12
+  SIDEBAR_GAP:          SPACING.xl,          // 16
   SIDEBAR_BORDER_WIDTH: BORDER_WIDTH.hairline,
 
   BRAND_TYPE:      TYPE_STYLES.sectionTitle,
@@ -51,11 +51,11 @@ const APP_SHELL_TOKENS = {
   GROUP_GAP:     SPACING.sm,                 // 8，區標題與其內容的距離
   SECTION_GAP:   SPACING['2xs'],             // 4，同區內各列的距離
 
-  NAV_ITEM_HEIGHT:    CONTROL_HEIGHT.lg,     // 32
+  NAV_ITEM_HEIGHT:    SPACING['3xl'],     // 32
   NAV_ITEM_PADDING_X: SPACING.sm,            // 8
   NAV_ITEM_GAP:       SPACING.sm,            // 8
   NAV_ITEM_RADIUS:    RADIUS.sm,
-  NAV_ITEM_TYPE:      TYPE_STYLES.bodySm,
+  NAV_ITEM_TYPE:      TYPE_STYLES.body,
   /** 選取態的左側指示條，與表格選取列同一個語彙。 */
   NAV_ACCENT_WIDTH:  BORDER_WIDTH.focus,
   NAV_ACCENT_HEIGHT: SPACING.lg,             // 16
@@ -247,23 +247,34 @@ function AppShell({ variant = 'default', theme = DEFAULT_THEME }) {
   const [showAddForm, setShowAddForm] = React.useState(preset.addFormOpen ?? false);
   const [defaultCalendar, setDefaultCalendar] = React.useState(APP_SHELL_DEFAULT_CALENDAR);
 
+  const [navigationOpen, setNavigationOpen] = React.useState(false);
   const hasViews = preset.views.length > 0;
   const currentLabel = preset.views.find((v) => v.value === currentView)?.label ?? '';
   const currentMode = APP_SHELL_MODES.find((m) => m.id === mode) ?? APP_SHELL_MODES[0];
 
   return (
-    <div
+    <div className="design-app-shell"
       style={{
         display: 'flex',
         alignItems: 'stretch',
-        width: A.BASE_WIDTH,
+        width: '100%',
         height: A.BASE_HEIGHT,
         background: theme.bg.base,
         color: theme.text.primary,
         fontFamily: FONT_FAMILY.base,
       }}
     >
-      <aside
+      <style>{`
+        .design-shell-mobile { display: none; }
+        @media (max-width: ${SPACING['4xl'] * 16}px) {
+          .design-app-shell { flex-direction: column; }
+          .design-shell-mobile { display: flex; justify-content: space-between; align-items: center; padding: ${SPACING.md}px ${SPACING.lg}px; }
+          .design-shell-navigation { display: none !important; }
+          .design-shell-navigation[data-open="true"] { display: flex !important; width: 100% !important; }
+        }
+      `}</style>
+      <div className="design-shell-mobile"><strong>IGotThis</strong><Button theme={theme} variant="ghost" label={navigationOpen ? '收合導覽' : '開啟導覽'} onClick={() => setNavigationOpen(!navigationOpen)} /></div>
+      <aside className="design-shell-navigation" data-open={navigationOpen}
         style={{
           width: A.SIDEBAR_WIDTH,
           flexShrink: 0,
@@ -271,7 +282,7 @@ function AppShell({ variant = 'default', theme = DEFAULT_THEME }) {
           flexDirection: 'column',
           gap: A.SIDEBAR_GAP,
           padding: A.SIDEBAR_PADDING,
-          background: theme.bg.surface,
+          background: theme.bg.base,
           borderRight: `${A.SIDEBAR_BORDER_WIDTH}px solid ${theme.border.base}`,
         }}
       >

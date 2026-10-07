@@ -86,6 +86,12 @@ const SCREEN_GROUPS = [
 // 決策狀態標註在各 artboard label；選定後回寫 Foundations，探索檔本身不動 token 檔。
 const EXPLORATION_GROUPS = [
   {
+    id: 'workspace-direction', label: 'Workspace Direction',
+    topics: [
+      { id: 'preview', label: '工作區視覺提案', render: () => <ExplorationWorkspaceDirectionSection/> },
+    ],
+  },
+  {
     id: 'color-directions', label: 'Color Directions',
     topics: [
       { id: 'candidates', label: 'Axis · 主色候選', render: () => <ExplorationColorDirectionsSection/> },

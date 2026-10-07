@@ -11,11 +11,19 @@
 // ─────────────────────────────────────────────────────────────
 
 const ISSUE_DETAIL_SCREEN_TOKENS = {
+  // 閱讀優先：標題與狀態置頂，內容與屬性分欄，窄版依序堆疊。
+  CONTENT_MAX_WIDTH: SPACING['4xl'] * 24,
+  RESPONSIVE_WIDTH: SPACING['4xl'] * 16,
+  TITLE_TYPE: { ...TYPE_STYLES.pageTitle, size: TYPOGRAPHY.size['3xl'], lineHeight: SPACING['2xl'] },
+  DETAIL_COLUMNS: 'minmax(0, 1fr) minmax(240px, 300px)', // (literal: 屬性側欄的可讀下界)
+  CONTENT_GAP: SPACING['3xl'],
+  EDIT_HEIGHT: SPACING['3xl'],
+  MOBILE_PADDING: SPACING.lg,
   // ─── 畫面框 ───
   FRAME_WIDTH:        1280,          // (literal: 桌面瀏覽器基準寬，與其餘畫面同寬)
-  CONTENT_PADDING_X:  SPACING.xl,    // 24
-  CONTENT_PADDING_Y:  SPACING.lg,    // 16
-  SECTION_GAP:        SPACING.lg,    // 16，欄位/關聯列與異動歷史區之間
+  CONTENT_PADDING_X:  SPACING['3xl'],
+  CONTENT_PADDING_Y:  SPACING['2xl'],
+  SECTION_GAP:        SPACING['2xl'],
 
   // ─── 標頭：返回 + IssueKey ───
   HEADER_GAP:      SPACING.sm,               // 8
@@ -27,15 +35,15 @@ const ISSUE_DETAIL_SCREEN_TOKENS = {
   BODY_GAP:     SPACING.lg,  // 16
 
   // ─── 區塊容器（欄位區/關聯區/異動歷史區共用外框）───
-  PANEL_PADDING:      SPACING.lg,    // 16
-  PANEL_GAP:          SPACING.md,    // 12，區內各列的垂直距離
+  PANEL_PADDING:      SPACING.xl,
+  PANEL_GAP:          SPACING.lg,
   PANEL_RADIUS:       RADIUS.lg,     // 8
   PANEL_BORDER_WIDTH: BORDER_WIDTH.hairline,
-  PANEL_TITLE_TYPE:   TYPE_STYLES.overline,
+  PANEL_TITLE_TYPE:   TYPE_STYLES.cardTitle,
 
   // ─── 欄位區一列 ───
   FIELD_ROW_GAP:        SPACING.md,          // 12，label 與值的距離
-  FIELD_ROW_MIN_HEIGHT: CONTROL_HEIGHT.md,   // 28，唯讀文字與編輯控件同高，切換不跳動
+  FIELD_ROW_MIN_HEIGHT: SPACING['3xl'],
   FIELD_LABEL_WIDTH:    SPACING['4xl'] * 2,  // 96，容得下最長欄位名 StoryPoint
   FIELD_VALUE_TYPE:     TYPE_STYLES.body,
   FIELD_CONFIRM_GAP:    SPACING.xs,          // 4，控件與確認鈕的貼齊間距
@@ -50,12 +58,12 @@ const ISSUE_DETAIL_SCREEN_TOKENS = {
 
   // ─── 異動歷史一列：時間 / 欄位標籤 / 舊值→新值 / 執行者 ───
   CHANGELOG_ROW_GAP:       SPACING.sm,           // 8，四個直排欄位間距
-  CHANGELOG_ROW_PADDING_Y: SPACING.xs,           // 4
+  CHANGELOG_ROW_PADDING_Y: SPACING.md,
   CHANGELOG_DIVIDER_WIDTH: BORDER_WIDTH.hairline,
   CHANGELOG_TIME_WIDTH:    SPACING['4xl'] * 3,   // 144，容得下 "2026-08-14 10:22"
   CHANGELOG_FIELD_WIDTH:   SPACING['4xl'] * 2,   // 96，與 FIELD_LABEL_WIDTH 同寬、呼應同一批欄位標籤
   CHANGELOG_TYPE:          TYPE_STYLES.bodySm,
-  CHANGELOG_META_TYPE:     TYPE_STYLES.caption,
+  CHANGELOG_META_TYPE:     TYPE_STYLES.label,
 
   // ─── Status 轉終止狀態的結案原因面板（行內、緊接 Status 列，非浮層）───
   RESOLUTION_PANEL_GAP:          SPACING.sm,   // 8

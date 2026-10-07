@@ -1,55 +1,8 @@
-// ─────────────────────────────────────────────────────────────
-// IssueDetailScreen · 工單詳情頁
-//
-// 畫面角色：檢視與編輯單張工單的完整欄位、關聯、異動歷史。
-// List／Kanban／DevOrder 三畫面的工單列點擊會導覽至此；點擊本身屬 impl
-// 接線層級行為，本畫面只定義詳情頁自身的視覺與互動，不含導覽線。
-//
-// 對側 spec：no3_product_specs/no1_issue_system/no2_screens/no5_issue_detail_screen.md
-//   標頭 / 欄位區 / 關聯區 / 異動歷史區四段落，與編輯一般欄位值 / 編輯
-//   Status / 返回三條互動逐條對位。
-//
-// 消費元件：
-//   20_components/no3_gantt_nav.jsx — Toolbar（標頭容器，僅用 left 區）
-//   20_components/no1_controls.jsx  — Button（返回、結案原因面板的取消/確認）、
-//                                     Select（Status 控件）、
-//                                     TextInput（一般欄位的可編輯輸入，經
-//                                       IssueDetailEditableField 組裝）、
-//                                     IconButton（可編輯欄位的確認鈕）、
-//                                     Badge（結案原因選項的 tone 標示）
-//   20_components/no2_data_display.jsx — EmptyState（關聯區 / 異動歷史區的
-//                                     空狀態，皆用 compact、不帶 action——
-//                                     本畫面關聯讀取為主，不提供建立入口）
-//
-// 本畫面自定義的私有元件全在 no2_subsections.jsx：
-//   IssueDetailSectionPanel   欄位/關聯/異動歷史三區共用外框
-//   IssueDetailFieldRow       欄位區一列：定寬 label + 值/控件
-//   IssueDetailReadOnlyValue / IssueDetailEditableField  欄位值唯讀/可編輯兩態
-//   IssueDetailResolutionPanel  Status 轉終止狀態的結案原因面板（行內，
-//                               緊接 Status 列往下長，非浮層）
-//   IssueDetailRelationGroup    關聯區一個分組（標題 + mono 工單編號清單）
-//   IssueDetailChangeLogRow     異動歷史一列
-// 都是「把既有元件補成本畫面形狀」的組裝件，元件庫目前沒有時間軸列表、
-// 詳情面板這類形狀，故留在畫面私有層級，不進 20_components/。
-//
-// Variants：
-//   default         欄位混合唯讀與可編輯、關聯含母子鏈與其他型別分組、
-//                   異動歷史五筆新到舊排列
-//   resolution      Status 選到終止狀態，結案原因面板行內浮出（live，
-//                   可操作）；面板保留一次曾遭拒的已選項與禁止原因，
-//                   示意 Spec「操作失敗：顯示禁止原因提示」
-//   readonly-heavy  整合同步型別，僅 Title 與 Status 可動，其餘欄位唯讀，
-//                   關聯與異動歷史維持正常內容以聚焦欄位區的唯讀樣式對比
-//   empty           關聯與異動歷史皆無記錄，兩區各自換空狀態
-//
-// 兩條硬規（與元件檔同源）：
-//   1. 一切視覺值引用 token。幾何走 ISSUE_DETAIL_SCREEN_TOKENS（其值全數由
-//      SPACING / RADIUS / BORDER_WIDTH / CONTROL_HEIGHT / ICON_SIZE / TYPE_STYLES
-//      階梯組出），色彩走傳入的 theme 物件。本檔無 hex、無未標註的裸數字
-//   2. 畫面吃 theme 參數（預設 DEFAULT_THEME），THEME_LIGHT 與 THEME_DARK 同一份
-//      JSX 都能渲染；畫面自身不讀 theme.id、不做主題分支
-// ─────────────────────────────────────────────────────────────
-
+// 工單詳情採閱讀優先。標題與狀態置頂，右側資訊，左側關聯及歷史。
+// 同模組 Spec no2_screens/no5_issue_detail_screen.md 的行為維持。
+// 欄位點選後編輯，Enter 儲存，Escape 或取消放棄草稿，失敗保留輸入。
+// 關聯與工時表單收合，歷史依執行者、變更內容、時間垂直排列。
+// 姓名不可得時用短編號區分帳號，完整識別碼保留為提示。
 // variant → 資料與狀態。畫面本體只讀本表，不在 JSX 內散落 variant 判斷。
 const ISSUE_DETAIL_VARIANTS = {
   default: {
@@ -105,6 +58,12 @@ function IssueDetailScreen({ variant = 'default', theme = DEFAULT_THEME }) {
   const [resolutionTarget, setResolutionTarget] = React.useState(config.resolutionDemo ? config.resolutionDemo.targetLabel : null);
   const [picked, setPicked] = React.useState(config.resolutionDemo ? config.resolutionDemo.picked : null);
   const [resolutionError, setResolutionError] = React.useState(config.resolutionDemo ? config.resolutionDemo.errorMessage : undefined);
+  const [rollupMode, setRollupMode] = React.useState('manual');
+  const [confirmAuto, setConfirmAuto] = React.useState(false);
+  const [relationKey, setRelationKey] = React.useState('');
+  const [addedRelations, setAddedRelations] = React.useState([]);
+  const [hours, setHours] = React.useState('');
+  const [worklogs, setWorklogs] = React.useState([2.5]);
 
   const commitField = (name, nextValue) => {
     setFieldValues((v) => ({ ...v, [name]: nextValue }));
@@ -146,6 +105,23 @@ function IssueDetailScreen({ variant = 'default', theme = DEFAULT_THEME }) {
 
   function renderField(def) {
     const raw = fieldValues[def.name];
+
+    if (def.name === 'point' && !def.readonly) {
+      return <div style={{ display: 'flex', flexDirection: 'column', gap: T.GROUP_GAP, flex: 1 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: T.FIELD_ROW_GAP }}>
+          {rollupMode === 'auto' ? <IssueDetailReadOnlyValue theme={theme} text="8" /> :
+            <IssueDetailEditableField theme={theme} value={String(raw ?? '')} onCommit={text => commitField('point', Number(text))} />}
+          <Select theme={theme} prefix="模式" value={rollupMode} options={[{ value: 'manual', label: '手動' }, { value: 'auto', label: '自動' }]}
+            onChange={mode => mode === 'auto' ? setConfirmAuto(true) : setRollupMode(mode)} />
+        </div>
+        {rollupMode === 'manual' && <span style={{ ...issueDetailType(T.RESOLUTION_HINT_TYPE), color: theme.text.secondary }}>下級合計 8 點 · 差距 {8 - Number(raw || 0)} 點</span>}
+        {confirmAuto && <div style={{ display: 'flex', gap: T.GROUP_GAP, alignItems: 'center' }}>
+          <span>自動彙總會取代目前主值。</span>
+          <Button theme={theme} label="確認切換" onClick={() => { setRollupMode('auto'); setConfirmAuto(false); }} />
+          <Button theme={theme} variant="ghost" label="取消" onClick={() => setConfirmAuto(false)} />
+        </div>}
+      </div>;
+    }
 
     if (def.name === 'status') {
       return (
@@ -189,151 +165,70 @@ function IssueDetailScreen({ variant = 'default', theme = DEFAULT_THEME }) {
   const relationsEmpty = !hasParentChild && rel.otherGroups.length === 0;
 
   return (
-    <div style={{
-      width: '100%', minHeight: '100%',
-      display: 'flex', flexDirection: 'column',
-      background: theme.bg.base, color: theme.text.primary, fontFamily: FONT_FAMILY.base,
-    }}>
-      <Toolbar
-        theme={theme}
-        left={
-          <div style={{ display: 'flex', alignItems: 'center', gap: T.HEADER_GAP }}>
-            <Button theme={theme} variant="ghost" label="返回" onClick={() => {}} />
-            <span style={{
-              ...issueDetailType(T.HEADER_KEY_TYPE), color: theme.text.primary,
-              fontFamily: FONT_FAMILY.mono, fontVariantNumeric: NUMERIC_FONT_VARIANT,
-            }}>
-              {config.issueKey}
-            </span>
-          </div>
+    <div className="issue-design" style={{ width: '100%', minHeight: '100%', containerType: 'inline-size', background: theme.bg.surface, color: theme.text.primary, fontFamily: FONT_FAMILY.base }}>
+      <style>{`
+        .design-edit-hint { opacity: 0; }
+        .design-issue-editable:hover .design-edit-hint, .design-issue-editable:focus-visible .design-edit-hint { opacity: 1; }
+        .design-issue-editable:hover { background: ${theme.bg.surface_hover} !important; }
+        .issue-design * { box-sizing: border-box; }
+        .issue-design-content { max-width: ${T.CONTENT_MAX_WIDTH}px; margin: 0 auto; padding: ${T.CONTENT_PADDING_Y}px ${T.CONTENT_PADDING_X}px; }
+        .issue-design-body { display: grid; grid-template-columns: ${T.DETAIL_COLUMNS}; gap: ${T.CONTENT_GAP}px; }
+        .issue-design-properties { grid-column: 2; grid-row: 1; }
+        .issue-design-main { grid-column: 1; grid-row: 1; min-width: 0; }
+        @container (max-width: ${T.RESPONSIVE_WIDTH}px) {
+          .design-edit-hint { opacity: 1; }
+          .issue-design-content { padding: ${T.MOBILE_PADDING}px; }
+          .issue-design-body { display: flex; flex-direction: column; gap: 0; }
         }
-      />
-
-      <div style={{
-        display: 'flex', flexDirection: 'column', gap: T.SECTION_GAP,
-        padding: `${T.CONTENT_PADDING_Y}px ${T.CONTENT_PADDING_X}px`,
-      }}>
-        <div style={{ display: 'grid', gridTemplateColumns: T.BODY_COLUMNS, gap: T.BODY_GAP, alignItems: 'start' }}>
-          {/* 欄位區 */}
-          <IssueDetailSectionPanel theme={theme} title="欄位">
-            {config.fieldDefs.map((def) => (
-              <React.Fragment key={def.name}>
-                <IssueDetailFieldRow theme={theme} label={def.label}>
-                  {renderField(def)}
-                </IssueDetailFieldRow>
-                {def.name === 'status' && resolutionTarget && (
-                  <div style={{ paddingLeft: T.FIELD_LABEL_WIDTH + T.FIELD_ROW_GAP }}>
-                    <IssueDetailResolutionPanel
-                      theme={theme}
-                      targetLabel={resolutionTarget}
-                      options={ISSUE_DETAIL_RESOLUTIONS}
-                      picked={picked}
-                      errorMessage={resolutionError}
-                      onPick={(id) => { setPicked(id); setResolutionError(undefined); }}
-                      onCancel={onResolutionCancel}
-                      onConfirm={onResolutionConfirm}
-                    />
-                  </div>
-                )}
-              </React.Fragment>
-            ))}
-          </IssueDetailSectionPanel>
-
-          {/* 關聯區 */}
-          <IssueDetailSectionPanel theme={theme} title="關聯">
-            {relationsEmpty ? (
-              <EmptyState theme={theme} compact title="尚無關聯" description="這張工單目前沒有任何關聯。" />
-            ) : (
-              <React.Fragment>
-                {hasParentChild && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: T.GROUP_GAP }}>
-                    <span style={{ ...issueDetailType(T.GROUP_TITLE_TYPE), color: theme.text.tertiary }}>母子鏈</span>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: T.GROUP_STACK_GAP, paddingLeft: T.RELATION_NEST_INDENT }}>
-                      <IssueDetailRelationGroup theme={theme} title="上層" items={rel.parents} />
-                      <IssueDetailRelationGroup theme={theme} title="子工單" items={rel.children} />
-                    </div>
-                  </div>
-                )}
-                {rel.otherGroups.map((g) => (
-                  <IssueDetailRelationGroup key={g.id} theme={theme} title={g.typeName} items={g.items} />
-                ))}
-              </React.Fragment>
-            )}
-          </IssueDetailSectionPanel>
+      `}</style>
+      <div className="issue-design-content">
+        <div style={{ display: 'flex', alignItems: 'center', gap: T.HEADER_GAP, color: theme.text.secondary }}><Button theme={theme} variant="ghost" label="← 返回" /><span>/</span><span style={{ fontFamily: FONT_FAMILY.mono }}>{config.issueKey}</span></div>
+        <h1 style={{ ...issueDetailType(T.TITLE_TYPE), margin: `${SPACING.xl}px 0 ${SPACING.md}px`, overflowWrap: 'anywhere' }}><IssueDetailEditableField theme={theme} value={fieldValues.title} onCommit={text => commitField('title', text)} /></h1>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: SPACING.md, alignItems: 'center', margin: `${SPACING.lg}px 0 ${SPACING['2xl']}px` }}>
+          <Select theme={theme} prefix="狀態" options={ISSUE_DETAIL_STATUS_OPTIONS} value={displayedStatus} onChange={onStatusChange} />
+          {fieldValues.resolution && <span>{fieldValues.resolution}</span>}
         </div>
-
-        {/* 異動歷史區 */}
-        <IssueDetailSectionPanel theme={theme} title="異動歷史">
-          {config.changelog.length === 0 ? (
-            <EmptyState theme={theme} compact title="尚無異動記錄" description="這張工單目前沒有任何欄位異動。" />
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              {config.changelog.map((entry) => (
-                <IssueDetailChangeLogRow key={entry.id} theme={theme} entry={entry} />
-              ))}
-            </div>
-          )}
-        </IssueDetailSectionPanel>
+        {resolutionTarget && <IssueDetailResolutionPanel theme={theme} targetLabel={resolutionTarget} options={ISSUE_DETAIL_RESOLUTIONS} picked={picked} errorMessage={resolutionError} onPick={setPicked} onCancel={onResolutionCancel} onConfirm={onResolutionConfirm} />}
+        <div className="issue-design-body">
+          <aside className="issue-design-properties">
+            <IssueDetailSectionPanel theme={theme} title="工單資訊">
+              {config.fieldDefs.filter(def => !['title', 'status'].includes(def.name)).map(def => <IssueDetailFieldRow key={def.name} theme={theme} label={def.label}>{renderField(def)}</IssueDetailFieldRow>)}
+            </IssueDetailSectionPanel>
+            <IssueDetailSectionPanel theme={theme} title="工時">
+              <div><strong style={issueDetailType(T.TITLE_TYPE)}>{worklogs.reduce((sum, value) => sum + value, 0)}</strong> 小時</div>
+              <details><summary style={{ cursor: 'pointer', color: theme.primary.main }}>填報工時</summary><TextInput theme={theme} value={hours} onChange={setHours} placeholder="工時，小時" /><Button theme={theme} label="填報工時" disabled={!(Number(hours) > 0)} onClick={() => { setWorklogs([...worklogs, Number(hours)]); setHours(''); }} /></details>
+            </IssueDetailSectionPanel>
+          </aside>
+          <div className="issue-design-main">
+            <IssueDetailSectionPanel theme={theme} title="關聯工單">
+              <IssueDetailRelationGroup theme={theme} title="上層工單" items={rel.parents} />
+              <IssueDetailRelationGroup theme={theme} title="子工單" items={rel.children} />
+              {rel.otherGroups.map(group => <IssueDetailRelationGroup key={group.id} theme={theme} title={group.typeName} items={group.items} />)}
+              {relationsEmpty && <span style={{ color: theme.text.secondary }}>尚無關聯工單</span>}
+              {addedRelations.map(key => <div key={key}>{key}<Button theme={theme} variant="ghost" label="移除" onClick={() => setAddedRelations(addedRelations.filter(item => item !== key))} /></div>)}
+              <details><summary style={{ cursor: 'pointer', color: theme.primary.main }}>新增關聯</summary>
+                <Select theme={theme} prefix="型別" value="Children" options={[{ value: 'Children', label: '子工單' }]} />
+                <TextInput theme={theme} fullWidth placeholder="目標工單編號，例如 IGT-1042" value={relationKey} onChange={setRelationKey} />
+                <Button theme={theme} label="新增關聯" disabled={!relationKey.trim()} onClick={() => { setAddedRelations([...addedRelations, relationKey.trim()]); setRelationKey(''); }} />
+              </details>
+            </IssueDetailSectionPanel>
+            <IssueDetailSectionPanel theme={theme} title="異動歷史">
+              {config.changelog.length ? config.changelog.map(entry => <IssueDetailChangeLogRow key={entry.id} theme={theme} entry={entry} />) : <span>尚無異動記錄</span>}
+            </IssueDetailSectionPanel>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-// ─────────────────────────────────────────────────────────────
-// Canvas section · Screens > IssueDetailScreen
-// 四個 variant × 兩主題共八張 artboard，皆為 live JSX。
-// ─────────────────────────────────────────────────────────────
 function ScreenIssueDetailSection() {
-  const W = ISSUE_DETAIL_SCREEN_TOKENS.FRAME_WIDTH;
-  return (
-    <DCSection
-      id="screen-issue-detail"
-      title="IssueDetailScreen · 工單詳情頁"
-      subtitle="對側 spec：no2_screens/no5_issue_detail_screen.md。標頭 + 欄位區/關聯區並排 + 異動歷史區；欄位依 readonly 唯讀顯示或可編輯，Status 一律走 changeIssueStatus。"
-    >
-      <DCFamily
-        id="idd-default" title="Default"
-        subtitle="欄位混合唯讀與可編輯、關聯含母子鏈與其他型別分組、異動歷史五筆新到舊排列。"
-      >
-        <DCArtboard id="idd-default-light" label="default · THEME_LIGHT (live)" width={W} height="auto">
-          <IssueDetailScreen variant="default" theme={THEME_LIGHT} />
-        </DCArtboard>
-        <DCArtboard id="idd-default-dark" label="default · THEME_DARK (live)" width={W} height="auto">
-          <IssueDetailScreen variant="default" theme={THEME_DARK} />
-        </DCArtboard>
-      </DCFamily>
-
-      <DCFamily
-        id="idd-resolution" title="Status Transition"
-        subtitle="選到終止狀態後，結案原因面板緊接 Status 列行內浮出（live，可操作）。此卡示意曾送出一次遭拒：面板保留已選項與禁止原因，可重選或取消。"
-      >
-        <DCArtboard id="idd-resolution-light" label="resolution · THEME_LIGHT (live · 可操作)" width={W} height="auto">
-          <IssueDetailScreen variant="resolution" theme={THEME_LIGHT} />
-        </DCArtboard>
-        <DCArtboard id="idd-resolution-dark" label="resolution · THEME_DARK (live · 可操作)" width={W} height="auto">
-          <IssueDetailScreen variant="resolution" theme={THEME_DARK} />
-        </DCArtboard>
-      </DCFamily>
-
-      <DCFamily
-        id="idd-boundary" title="Boundary"
-        subtitle="readonly-heavy 為整合同步型別，僅 Title 與 Status 可動，其餘唯讀。empty 為無關聯無異動歷史，兩區各自換空狀態。"
-      >
-        <DCArtboard id="idd-readonly-heavy-light" label="readonly-heavy · THEME_LIGHT (live)" width={W} height="auto">
-          <IssueDetailScreen variant="readonly-heavy" theme={THEME_LIGHT} />
-        </DCArtboard>
-        <DCArtboard id="idd-readonly-heavy-dark" label="readonly-heavy · THEME_DARK (live)" width={W} height="auto">
-          <IssueDetailScreen variant="readonly-heavy" theme={THEME_DARK} />
-        </DCArtboard>
-        <DCArtboard id="idd-empty-light" label="empty · THEME_LIGHT (live)" width={W} height="auto">
-          <IssueDetailScreen variant="empty" theme={THEME_LIGHT} />
-        </DCArtboard>
-        <DCArtboard id="idd-empty-dark" label="empty · THEME_DARK (live)" width={W} height="auto">
-          <IssueDetailScreen variant="empty" theme={THEME_DARK} />
-        </DCArtboard>
-      </DCFamily>
-    </DCSection>
-  );
+  return <DCSection id="screen-issue-detail" title="IssueDetailScreen · 工單詳情頁" subtitle="閱讀優先。點欄位編輯，窄版堆疊資訊、關聯與歷史。">
+    {ISSUE_DETAIL_SCREEN_VARIANTS.map(variant => <DCFamily key={variant} id={`idd-${variant}`} title={ISSUE_DETAIL_VARIANTS[variant].label}>
+      {[THEME_LIGHT, THEME_DARK].map(theme => <DCArtboard key={theme.id} id={`idd-${variant}-${theme.id}`} label={`${variant} · ${theme.id}`} width={ISSUE_DETAIL_SCREEN_TOKENS.FRAME_WIDTH} height="auto"><IssueDetailScreen variant={variant} theme={theme} /></DCArtboard>)}
+    </DCFamily>)}
+    <DCFamily id="idd-narrow" title="窄版"><DCArtboard id="idd-narrow-light" label="窄版 · 384px" width={SPACING['4xl'] * 8} height="auto"><IssueDetailScreen /></DCArtboard></DCFamily>
+  </DCSection>;
 }
 
 Object.assign(window, {

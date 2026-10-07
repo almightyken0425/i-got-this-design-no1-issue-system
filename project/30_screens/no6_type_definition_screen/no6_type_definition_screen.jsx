@@ -90,7 +90,50 @@ const TD_ISSUE_TYPES = [
 const TD_TABS = [
   { id: 'fields', label: '欄位' },
   { id: 'types',  label: '工單型別' },
+  { id: 'relations', label: '關聯型別' },
+  { id: 'calendars', label: '工作日曆' },
 ];
+
+// 新分頁沿用表格與行內表單。名稱、週規則、日期例外分成獨立操作區，
+// 錯誤顯示在該區並保留草稿。沒有 typeAdmin 時表單與寫入按鈕不呈現。
+// 日曆被選用後才影響工期，不以新增日曆替使用者更換檢視或帳號預設。
+function TDPlanningTab({ tab, theme }) {
+  const [name, setName] = React.useState('台灣工作週');
+  const [off, setOff] = React.useState(['SAT', 'SUN']);
+  const [date, setDate] = React.useState('2026-10-10');
+  const [working, setWorking] = React.useState(false);
+  const [exceptions, setExceptions] = React.useState([]);
+  if (tab === 'relations') return <div style={{ display: 'flex', flexDirection: 'column', gap: TD.GROUP_GAP }}>
+    <DataTable theme={theme} columns={[{ key: 'name', label: '名稱', type: 'key' }, { key: 'rules', label: '規則', type: 'text' }]}
+      rows={[{ id: 'children', cells: { name: 'Children', rules: '獨佔、禁環、彙總' } }, { id: 'related', cells: { name: 'RelatedTo', rules: '對稱' } }]} />
+    <TextInput theme={theme} placeholder="關聯型別名稱" />
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: TD.ROW_GAP }}>
+      {['獨佔', '禁環', '有序', '對稱', '彙總'].map(label => <Checkbox key={label} theme={theme} label={label} />)}
+    </div>
+    <Button theme={theme} label="新增關聯型別" />
+  </div>;
+  return <div style={{ display: 'flex', flexDirection: 'column', gap: TD.GROUP_GAP }}>
+    <Select theme={theme} prefix="日曆" value="台灣工作週" options={[{ value: '台灣工作週', label: '台灣工作週' }]} />
+    <TextInput theme={theme} placeholder="新日曆名稱" value={name} onChange={setName} />
+    <Button theme={theme} variant="secondary" label="新增日曆" />
+    <span style={{ ...TD_type(TD.GROUP_LABEL_TYPE), color: theme.text.secondary }}>每週休假日</span>
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: TD.ROW_GAP }}>
+      {[['MON','一'],['TUE','二'],['WED','三'],['THU','四'],['FRI','五'],['SAT','六'],['SUN','日']].map(([key,label]) =>
+        <Checkbox key={key} theme={theme} label={`週${label}`} checked={off.includes(key)} onChange={checked => setOff(checked ? [...off,key] : off.filter(day => day !== key))} />)}
+    </div>
+    <Button theme={theme} label="儲存週規則" />
+    <span style={{ ...TD_type(TD.GROUP_LABEL_TYPE), color: theme.text.secondary }}>日期例外</span>
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: TD.ROW_GAP }}>
+      <TextInput theme={theme} value={date} onChange={setDate} placeholder="YYYY-MM-DD" />
+      <Checkbox theme={theme} label="工作日" checked={working} onChange={setWorking} />
+      <Button theme={theme} label="儲存例外" onClick={() => setExceptions([...exceptions.filter(item => item.date !== date), { date, working }])} />
+    </div>
+    {exceptions.map(item => <div key={item.date} style={{ display: 'flex', alignItems: 'center', gap: TD.ROW_GAP }}>
+      <span>{item.date} · {item.working ? '工作日' : '休假日'}</span>
+      <Button theme={theme} variant="ghost" label="移除例外" onClick={() => setExceptions(exceptions.filter(value => value.date !== item.date))} />
+    </div>)}
+  </div>;
+}
 
 const TYPE_DEFINITION_VARIANTS = {
   default: {
@@ -232,7 +275,7 @@ function TypeDefinitionScreen({ variant = 'default', theme = DEFAULT_THEME }) {
         padding: `${TD.CONTENT_PADDING_Y}px ${TD.CONTENT_PADDING_X}px`,
       }}>
         {tab === 'fields' ? (
-          <div style={{ display: 'flex', gap: TD.COLUMN_GAP, alignItems: 'flex-start' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: TD.COLUMN_GAP, alignItems: 'flex-start' }}>
             {/* 欄位組清單 */}
             <div style={{
               width: TD.FIELD_SET_COL_WIDTH, flexShrink: 0,
@@ -254,7 +297,7 @@ function TypeDefinitionScreen({ variant = 'default', theme = DEFAULT_THEME }) {
             </div>
 
             {/* 欄位清單 */}
-            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: TD.GROUP_GAP }}>
+            <div style={{ flex: '1 1 320px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: TD.GROUP_GAP }}>
               {selectedFieldSet === null ? (
                 <EmptyState
                   theme={theme}
@@ -269,12 +312,12 @@ function TypeDefinitionScreen({ variant = 'default', theme = DEFAULT_THEME }) {
               )}
             </div>
           </div>
-        ) : (
+        ) : tab === 'types' ? (
           <React.Fragment>
             <DataTable theme={theme} columns={typeColumns} rows={typeRows} />
             <Button theme={theme} variant="secondary" size="sm" iconLeft="plus" label="新增工單型別" />
           </React.Fragment>
-        )}
+        ) : <TDPlanningTab key={tab} tab={tab} theme={theme} />}
       </div>
     </div>
   );

@@ -332,6 +332,8 @@ function DataTable({
   const [hoveredId, setHoveredId] = React.useState(null);
   const [focusedId, setFocusedId] = React.useState(null);
 
+  // 窄版保留已設定欄寬，由表格自身橫向捲動，不裁切右側欄位。
+  const contentWidth = columns.reduce((sum, column) => sum + (typeof column.width === 'number' ? column.width : Number(column.width?.match(/(?:minmax\()?([0-9.]+)px/)?.[1] ?? T.COLUMN_MIN_WIDTH)), 0);
   const rowHeight = T.ROW_HEIGHT_BY_DENSITY[density] || T.ROW_HEIGHT_BY_DENSITY.base;
   const template = columns.map((col) => (
     typeof col.width === 'number' ? `${col.width}px`
@@ -449,7 +451,8 @@ function DataTable({
         fontFamily: FONT_FAMILY.base, color: c.rowFg,
       }}
     >
-      <div style={{ maxHeight, overflow: maxHeight ? 'auto' : 'visible' }}>
+      <div tabIndex={0} aria-label="可左右捲動的表格" style={{ maxHeight, overflow: 'auto' }}>
+        <div style={{ minWidth: contentWidth }}>
         {/* 欄位標題列 */}
         <div
           role="row"
@@ -465,6 +468,7 @@ function DataTable({
           ))}
         </div>
         {body}
+        </div>
       </div>
     </div>
   );

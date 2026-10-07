@@ -23,7 +23,7 @@ function issueDetailType(style) {
 // 任意欄位值 → 可讀文字；null/undefined/空字串統一顯示「(無)」，
 // 對齊 Spec 線框圖異動歷史列的空值表示法（"Assignee (無) → 成員甲"）。
 function issueDetailDisplayValue(value) {
-  if (value === null || value === undefined || value === '') return '(無)';
+  if (value === null || value === undefined || value === '') return '未填寫';
   return String(value);
 }
 
@@ -118,12 +118,11 @@ function IssueDetailSectionPanel({ theme, title, children }) {
   return (
     <div style={{
       display: 'flex', flexDirection: 'column', gap: T.PANEL_GAP, minWidth: 0,
-      padding: T.PANEL_PADDING,
+      padding: `${T.PANEL_PADDING}px 0`,
       background: theme.bg.surface,
-      border: `${T.PANEL_BORDER_WIDTH}px solid ${theme.border.base}`,
-      borderRadius: T.PANEL_RADIUS,
+      borderTop: `${T.PANEL_BORDER_WIDTH}px solid ${theme.border.base}`,
     }}>
-      <span style={{ ...issueDetailType(T.PANEL_TITLE_TYPE), color: theme.text.secondary }}>{title}</span>
+      <h2 style={{ ...issueDetailType(T.PANEL_TITLE_TYPE), color: theme.text.primary, margin: 0 }}>{title}</h2>
       {children}
     </div>
   );
@@ -138,7 +137,7 @@ function IssueDetailFieldRow({ theme, label, children }) {
     <div style={{ display: 'flex', alignItems: 'center', gap: T.FIELD_ROW_GAP, minHeight: T.FIELD_ROW_MIN_HEIGHT }}>
       <span style={{
         width: T.FIELD_LABEL_WIDTH, flexShrink: 0,
-        ...issueDetailType(TYPE_STYLES.label), color: theme.text.secondary,
+        ...issueDetailType(TYPE_STYLES.bodySm), color: theme.text.secondary,
       }}>
         {label}
       </span>
@@ -155,7 +154,7 @@ function IssueDetailReadOnlyValue({ theme, text }) {
   return (
     <span title={text} style={{
       ...issueDetailType(T.FIELD_VALUE_TYPE), color: theme.text.primary,
-      minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+      minWidth: 0, overflowWrap: 'anywhere',
     }}>
       {text}
     </span>
@@ -169,21 +168,25 @@ function IssueDetailReadOnlyValue({ theme, text }) {
 function IssueDetailEditableField({ theme, value, placeholder, disabled = false, onCommit }) {
   const T = ISSUE_DETAIL_SCREEN_TOKENS;
   const [draft, setDraft] = React.useState(value);
+  const [editing, setEditing] = React.useState(false);
   // 外部值變動（如提交成功後父層更新）時重置草稿，避免殘留上一版未提交的字。
   React.useEffect(() => { setDraft(value); }, [value]);
 
   const dirty = draft !== value;
-  const commit = () => { if (dirty && !disabled) onCommit && onCommit(draft); };
+  const commit = () => { if (dirty && !disabled) { onCommit && onCommit(draft); setEditing(false); } };
+  if (!editing) return <button type="button" className="design-issue-editable" disabled={disabled} onClick={() => setEditing(true)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: T.GROUP_GAP, width: '100%', border: 0, background: 'transparent', color: value ? theme.text.primary : theme.text.tertiary, textAlign: 'left', cursor: 'pointer', minHeight: T.EDIT_HEIGHT, padding: 0, font: 'inherit', minWidth: 0 }}><span style={{ overflowWrap: 'anywhere' }}>{value || '未填寫'}</span><span className="design-edit-hint" aria-hidden="true" style={{ ...issueDetailType(TYPE_STYLES.label), color: theme.text.tertiary }}>編輯</span></button>;
+
 
   return (
     <div
       style={{ display: 'flex', alignItems: 'center', gap: T.FIELD_CONFIRM_GAP, flex: 1, minWidth: 0 }}
-      onKeyDown={(e) => { if (e.key === 'Enter') commit(); }}
+      onKeyDown={(e) => { if (e.key === 'Enter') commit(); if (e.key === 'Escape') { setDraft(value); setEditing(false); } }}
     >
       <TextInput
         theme={theme} value={draft} placeholder={placeholder} disabled={disabled}
         onChange={setDraft} fullWidth style={{ flex: 1 }}
       />
+      <Button theme={theme} variant="ghost" label="取消" onClick={() => { setDraft(value); setEditing(false); }} />
       {dirty && !disabled && (
         <IconButton theme={theme} icon="check" title="儲存" size="sm" onClick={commit} />
       )}
@@ -318,37 +321,14 @@ function IssueDetailRelationGroup({ theme, title, items = [] }) {
 // 時間 / 欄位標籤 / 舊值→新值 / 執行者，四欄定寬對齊 Spec 線框圖排法。
 function IssueDetailChangeLogRow({ theme, entry }) {
   const T = ISSUE_DETAIL_SCREEN_TOKENS;
-  return (
-    <div style={{
-      display: 'flex', alignItems: 'baseline', gap: T.CHANGELOG_ROW_GAP,
-      padding: `${T.CHANGELOG_ROW_PADDING_Y}px 0`,
-      borderTop: `${T.CHANGELOG_DIVIDER_WIDTH}px solid ${theme.divider.base}`,
-    }}>
-      <span style={{
-        width: T.CHANGELOG_TIME_WIDTH, flexShrink: 0,
-        ...issueDetailType(T.CHANGELOG_META_TYPE), color: theme.text.tertiary,
-        fontVariantNumeric: NUMERIC_FONT_VARIANT,
-      }}>
-        {entry.time}
-      </span>
-      <span style={{
-        width: T.CHANGELOG_FIELD_WIDTH, flexShrink: 0,
-        ...issueDetailType(T.CHANGELOG_TYPE), color: theme.text.secondary,
-        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-      }}>
-        {entry.fieldLabel}
-      </span>
-      <span style={{ flex: 1, minWidth: 0, ...issueDetailType(T.CHANGELOG_TYPE), color: theme.text.primary }}>
-        {`${issueDetailDisplayValue(entry.oldValue)} → ${issueDetailDisplayValue(entry.newValue)}`}
-      </span>
-      <span style={{
-        flexShrink: 0, ...issueDetailType(T.CHANGELOG_META_TYPE), color: theme.text.tertiary,
-        fontFamily: FONT_FAMILY.mono,
-      }}>
-        {entry.actor}
-      </span>
+  return <div style={{ display: 'flex', gap: T.GROUP_GAP, padding: `${T.CHANGELOG_ROW_PADDING_Y}px 0`, borderBottom: `${BORDER_WIDTH.hairline}px solid ${theme.divider.base}` }}>
+    <span aria-hidden="true" style={{ color: theme.primary.main }}>•</span>
+    <div style={{ minWidth: 0, flex: 1 }}>
+      <div style={{ ...issueDetailType(T.CHANGELOG_TYPE), overflowWrap: 'anywhere' }}><strong>{entry.actor}</strong> 更新了 {entry.fieldLabel}</div>
+      <div style={{ ...issueDetailType(T.CHANGELOG_TYPE), marginTop: SPACING.xs }}>{issueDetailDisplayValue(entry.oldValue)} → {issueDetailDisplayValue(entry.newValue)}</div>
+      <div style={{ ...issueDetailType(T.CHANGELOG_META_TYPE), color: theme.text.tertiary, marginTop: SPACING.xs }}>{entry.time}</div>
     </div>
-  );
+  </div>;
 }
 
 Object.assign(window, {
