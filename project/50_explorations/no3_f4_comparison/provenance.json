@@ -1,0 +1,17 @@
+{
+  "created": "2026-10-18",
+  "kind": "isolated-design-comparison",
+  "implementation": "../../../../impl-no1-issue-system",
+  "implementationHead": "3633e091a723ec3a7832ff869ffad5fb0f9778c5",
+  "implementationDiffSha256": "9adacf9c711516f97ce207cae8cbe8f0dc6ff48e34cd9fa07495d8b28c8e10a7",
+  "runtimeSha256": "f3181259c9b0017566ebbb26408879aeccbcfb8035f7aee529fe991f5482b1fd",
+  "dataSource": "Read-only igotthis_dev snapshot: IGT-1 and IGT-2, 2026-10-18",
+  "dataTransform": "Only internal IDs and actor identity aliased. Content and timestamps retained. No attachments, descriptions or people invented.",
+  "scope": [
+    "shell",
+    "kanban",
+    "issue detail"
+  ],
+  "selection": "pending",
+  "firstF4Preserved": true
+}

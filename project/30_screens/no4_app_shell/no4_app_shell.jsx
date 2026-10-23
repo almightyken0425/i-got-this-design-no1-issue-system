@@ -91,7 +91,6 @@ const APP_SHELL_MODES = [
   { id: 'list',      label: '工單清單' },
   { id: 'kanban',    label: '工單看板' },
   { id: 'dev-order', label: '開發順序表' },
-  { id: 'organization', label: '組織管理' },
 ];
 
 const APP_SHELL_ACCOUNT = '成員甲';
@@ -105,7 +104,7 @@ const APP_SHELL_CALENDARS = [{ value: 'tw', label: '台灣' }, { value: 'us', la
 const APP_SHELL_DEFAULT_CALENDAR = 'tw';
 
 const APP_SHELL_VARIANTS = {
-  default:     { views: APP_SHELL_VIEWS, currentView: 'dev-all', mode: 'list' },
+  default:     { views: APP_SHELL_VIEWS, currentView: 'dev-all', mode: 'kanban' },
   empty:       { views: [],              currentView: null,      mode: 'list' },
   'dev-order': { views: APP_SHELL_VIEWS, currentView: 'dev-all', mode: 'dev-order' },
   'add-view':  { views: APP_SHELL_VIEWS, currentView: 'dev-all', mode: 'list', addFormOpen: true },
@@ -245,167 +244,41 @@ function AppShell({ variant = 'default', theme = DEFAULT_THEME }) {
   const [currentView, setCurrentView] = React.useState(preset.currentView);
   const [mode, setMode] = React.useState(preset.mode);
   const [showAddForm, setShowAddForm] = React.useState(preset.addFormOpen ?? false);
-  const [defaultCalendar, setDefaultCalendar] = React.useState(APP_SHELL_DEFAULT_CALENDAR);
-
-  const [navigationOpen, setNavigationOpen] = React.useState(false);
-  const hasViews = preset.views.length > 0;
-  const currentLabel = preset.views.find((v) => v.value === currentView)?.label ?? '';
-  const currentMode = APP_SHELL_MODES.find((m) => m.id === mode) ?? APP_SHELL_MODES[0];
-
-  return (
-    <div className="design-app-shell"
-      style={{
-        display: 'flex',
-        alignItems: 'stretch',
-        width: '100%',
-        height: A.BASE_HEIGHT,
-        background: theme.bg.base,
-        color: theme.text.primary,
-        fontFamily: FONT_FAMILY.base,
-      }}
-    >
-      <style>{`
-        .design-shell-mobile { display: none; }
-        @media (max-width: ${SPACING['4xl'] * 16}px) {
-          .design-app-shell { flex-direction: column; }
-          .design-shell-mobile { display: flex; justify-content: space-between; align-items: center; padding: ${SPACING.md}px ${SPACING.lg}px; }
-          .design-shell-navigation { display: none !important; }
-          .design-shell-navigation[data-open="true"] { display: flex !important; width: 100% !important; }
-        }
-      `}</style>
-      <div className="design-shell-mobile"><strong>IGotThis</strong><Button theme={theme} variant="ghost" label={navigationOpen ? '收合導覽' : '開啟導覽'} onClick={() => setNavigationOpen(!navigationOpen)} /></div>
-      <aside className="design-shell-navigation" data-open={navigationOpen}
-        style={{
-          width: A.SIDEBAR_WIDTH,
-          flexShrink: 0,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: A.SIDEBAR_GAP,
-          padding: A.SIDEBAR_PADDING,
-          background: theme.bg.base,
-          borderRight: `${A.SIDEBAR_BORDER_WIDTH}px solid ${theme.border.base}`,
-        }}
-      >
-        {/* 品牌 */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: A.BRAND_GAP, minWidth: 0 }}>
-          <span
-            style={{ ...AS_type(A.BRAND_TYPE), color: theme.text.primary }}
-          >
-            IGotThis
-          </span>
-          <span
-            style={{ ...AS_type(A.BRAND_META_TYPE), color: theme.text.tertiary }}
-          >
-            工單系統
-          </span>
-        </div>
-
-        {/* 當前檢視 */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: A.GROUP_GAP }}>
-          <AppShellGroupLabel theme={theme}>當前檢視</AppShellGroupLabel>
-          {hasViews ? (
-            <Select
-              theme={theme}
-              size="sm"
-              options={preset.views}
-              value={currentView}
-              onChange={setCurrentView}
-            />
-          ) : (
-            <span
-              style={{
-                ...AS_type(A.BRAND_META_TYPE),
-                color: theme.text.tertiary,
-                padding: `0 ${A.NAV_ITEM_PADDING_X}px`,
-              }}
-            >
-              尚無檢視
-            </span>
-          )}
-          {showAddForm ? (
-            <AppShellAddViewForm
-              theme={theme}
-              onCancel={() => setShowAddForm(false)}
-              onCreate={() => setShowAddForm(false)}
-            />
-          ) : (
-            <Button
-              theme={theme} variant="secondary" size="sm" fullWidth label="新增檢視"
-              onClick={() => setShowAddForm(true)}
-            />
-          )}
-        </div>
-
-        {/* 畫面形態導覽 */}
-        <nav
-          aria-label="畫面形態"
-          style={{ display: 'flex', flexDirection: 'column', gap: A.SECTION_GAP, flex: 1 }}
-        >
-          <AppShellGroupLabel theme={theme}>畫面</AppShellGroupLabel>
-          {APP_SHELL_MODES.map((item) => (
-            <AppShellNavItem
-              key={item.id}
-              theme={theme}
-              label={item.label}
-              active={item.id === mode}
-              onClick={() => setMode(item.id)}
-            />
-          ))}
-        </nav>
-
-        {/* 帳號 */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: A.SECTION_GAP }}>
-          <span
-            style={{
-              ...AS_type(A.BRAND_META_TYPE),
-              color: theme.text.tertiary,
-              padding: `0 ${A.NAV_ITEM_PADDING_X}px`,
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            {APP_SHELL_ACCOUNT}
-          </span>
-          <Select
-            theme={theme} size="sm" prefix="日曆" options={APP_SHELL_CALENDARS}
-            value={defaultCalendar} placeholder="未設定" onChange={setDefaultCalendar} fullWidth
-          />
-          <Button theme={theme} variant="secondary" size="sm" fullWidth label="型別定義" />
-          <Button theme={theme} variant="secondary" size="sm" fullWidth label="切換主題" />
-          <Button theme={theme} variant="ghost" size="sm" fullWidth label="登出" />
-        </div>
-      </aside>
-
-      {/* 內容區 */}
-      <main style={{ flex: 1, minWidth: 0, padding: A.CONTENT_PADDING, overflow: 'hidden' }}>
-        {hasViews ? (
-          <div
-            style={{
-              height: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: A.PLACEHOLDER_RADIUS,
-              border: `${A.PLACEHOLDER_BORDER}px dashed ${theme.border.base}`,
-              color: theme.text.tertiary,
-              ...AS_type(A.PLACEHOLDER_LABEL_TYPE),
-            }}
-          >
-            {currentLabel} · {currentMode.label}
-          </div>
-        ) : (
-          <div style={{ height: '100%', display: 'flex', alignItems: 'center' }}>
-            <EmptyState
-              theme={theme}
-              title="尚無檢視"
-              description="先新增一張檢視，選定資料來源後開始看工單。"
-            />
-          </div>
-        )}
-      </main>
-    </div>
-  );
+  const [settingsOpen, setSettingsOpen] = React.useState(false);
+  const [calendar, setCalendar] = React.useState(APP_SHELL_DEFAULT_CALENDAR);
+  const [dark, setDark] = React.useState(theme.id === 'dark');
+  const activeTheme = dark ? THEME_DARK : THEME_LIGHT;
+  const nav = [...APP_SHELL_MODES, { id: 'types', label: '型別管理' }, { id: 'workflow', label: '流程轉換規則' }, { id: 'organization', label: '組織管理' }];
+  const icons = { list: 'list', kanban: 'kanban', 'dev-order': 'timeline', types: 'types', workflow: 'workflow', organization: 'organization' };
+  return <div style={{ containerType: 'inline-size' }}><div className="f4-design-shell" style={{ display: 'flex', gap: F4_LAYOUT.railGap, padding: SPACING.lg, height: A.BASE_HEIGHT, boxSizing: 'border-box', background: activeTheme.bg.base, fontFamily: FONT_FAMILY.base, color: activeTheme.text.primary }}>
+    <style>{`
+      .f4-design-workspace { min-width: 0; flex: 1; display: flex; flex-direction: column; }
+      .f4-design-content { flex: 1; min-width: 0; overflow: auto; }
+      .f4-design-nav { display: flex; flex-direction: column; gap: 8px; }
+      @container (max-width: ${F4_LAYOUT.mobileBreakpoint}px) {
+        .f4-design-shell { flex-direction: column; padding: 0 !important; gap: 0 !important; }
+        .f4-design-rail { order: 2; width: 100% !important; padding: 6px 0 !important; border-radius: 0 !important; }
+        .f4-design-brand { display: none; }
+        .f4-design-workspace { min-height: 0; }
+        .f4-design-nav { flex-direction: row; justify-content: space-evenly; width: 100%; }
+      }
+    `}</style>
+    <aside className="f4-design-rail" style={{ width: F4_LAYOUT.rail, flexShrink: 0, borderRadius: F4_LAYOUT.moduleRadius, background: activeTheme.bg.surface_hover, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: SPACING.sm, paddingTop: SPACING.lg }}>
+      <strong className="f4-design-brand" style={{ paddingBottom: SPACING.lg, color: activeTheme.primary.main }}>IG↗</strong>
+      <nav className="f4-design-nav" aria-label="主導覽">{nav.map(item => <button type="button" key={item.id} aria-label={item.label} title={item.label} onClick={() => setMode(item.id)} style={{ display: 'grid', placeItems: 'center', width: 44, height: 44, border: 0, borderRadius: F4_LAYOUT.controlRadius, background: mode === item.id ? activeTheme.state.selected.bg : 'transparent', color: mode === item.id ? activeTheme.primary.main : activeTheme.text.secondary }}><F4Icon name={icons[item.id]} /></button>)}</nav>
+    </aside>
+    <main className="f4-design-workspace">
+      <header style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: SPACING.sm, padding: `${SPACING.sm}px ${SPACING.lg}px ${SPACING.lg}px`, position: 'relative' }}>
+        <Select theme={activeTheme} label="當前檢視" options={preset.views} value={currentView} onChange={setCurrentView} placeholder="尚無檢視" />
+        <button type="button" aria-label={showAddForm ? '取消新增檢視' : '新增檢視'} title={showAddForm ? '取消新增檢視' : '新增檢視'} onClick={() => setShowAddForm(!showAddForm)} style={{ width: F4_LAYOUT.touchTarget, height: F4_LAYOUT.touchTarget, border: 0, borderRadius: RADIUS.sm, background: activeTheme.bg.surface_hover, color: activeTheme.text.secondary }}><F4Icon name={showAddForm ? 'close' : 'plus'} /></button>
+        <button aria-label="帳號設定" title="帳號設定" onClick={() => setSettingsOpen(!settingsOpen)} style={{ marginLeft: 'auto', border: 0, background: activeTheme.bg.surface_hover, padding: 12, borderRadius: 10, color: activeTheme.text.secondary }}><F4Icon name="account" /></button>
+      {showAddForm && <div style={{ position: 'absolute', top: '100%', left: SPACING.lg, zIndex: 30, width: 'min(440px, calc(100vw - 32px))', maxHeight: 'calc(100dvh - 160px)', overflowY: 'auto', boxSizing: 'border-box', padding: SPACING.lg, borderRadius: RADIUS.lg, border: `1px solid ${activeTheme.border.base}`, background: activeTheme.bg.surface }}><AppShellAddViewForm theme={activeTheme} onCancel={() => setShowAddForm(false)} onCreate={() => setShowAddForm(false)} /></div>}
+      {settingsOpen && <section style={{ position: 'absolute', right: SPACING.lg, top: '100%', zIndex: 40, width: 'min(280px, calc(100vw - 32px))', boxSizing: 'border-box', padding: SPACING.lg, background: activeTheme.bg.surface, border: `1px solid ${activeTheme.border.base}`, borderRadius: RADIUS.lg, display: 'flex', flexDirection: 'column', gap: SPACING.md }}><p>{APP_SHELL_ACCOUNT}</p><Select theme={activeTheme} prefix="日曆" value={calendar} options={APP_SHELL_CALENDARS} onChange={setCalendar} /><Button theme={activeTheme} label="切換主題" onClick={() => setDark(!dark)} /><Button theme={activeTheme} variant="ghost" label="登出" /></section>}
+      </header>
+      <div className="f4-design-content">{preset.views.length === 0 ? <EmptyState theme={activeTheme} title="尚無檢視" description="從上方新增檢視。" /> : mode === 'kanban' ? <KanbanScreen theme={activeTheme} /> : <div style={{ padding: SPACING['2xl'] }}><h1>{nav.find(n => n.id === mode)?.label}</h1><p>{preset.views.find(v => v.value === currentView)?.label}</p></div>}
+      </div>
+    </main>
+  </div></div>;
 }
 
 // ─── Section ─────────────────────────────────────────────────
@@ -417,7 +290,7 @@ function ScreenAppShellSection() {
     <DCSection
       id="app-shell"
       title="AppShell · 應用外殼"
-      subtitle="側邊四段：品牌、當前檢視、畫面形態導覽、帳號。檢視選擇在外殼、不在畫面。"
+      subtitle="圖示導覽、頂部檢視與帳號入口。窄版導覽移至底部。"
       direction="column"
     >
       <DCFamily

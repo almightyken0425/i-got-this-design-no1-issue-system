@@ -19,13 +19,13 @@ const SPACING = {
   '4xl': 48,
 };
 
-// 圓角小巧三階：sm 4 控件 / md 6 卡片內子區塊 / lg 8 卡片與 modal。
+// F4：控件 10、卡片 11、模組 18。
 // full 只給 pill 形 badge 與 avatar。
 const RADIUS = {
   none: 0,
-  sm:   4,
-  md:   6,
-  lg:   8,
+  sm: 10,
+  md: 11,
+  lg: 18,
   full: 9999,
 };
 
@@ -79,3 +79,12 @@ const ROW_HEIGHT = {
 Object.assign(window, {
   SPACING, RADIUS, SHADOW, BORDER_WIDTH, MOTION, ICON_SIZE, CONTROL_HEIGHT, ROW_HEIGHT,
 });
+
+// F4 角色尺寸，Design 仲裁，Impl 逐名引用。
+const F4_LAYOUT = {
+  rail: 56, railGap: 22, boardGap: 17, moduleRadius: 18, cardRadius: 11,
+  controlRadius: 10, thumbnailRadius: 8, thumbnailWidth: 89, thumbnailHeight: 64,
+  cardMinHeight: 82, mobileBreakpoint: 800, singleColumnBreakpoint: 540,
+  pagePadding: 32, touchTarget: 44,
+};
+Object.assign(window, { F4_LAYOUT });

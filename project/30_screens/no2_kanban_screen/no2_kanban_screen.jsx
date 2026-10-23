@@ -281,7 +281,6 @@ function KanbanDragOverlay({ theme, issue }) {
 function KanbanResolutionPrompt({ theme, issue, targetLabel, options = [], onCancel, onConfirm }) {
   const K = KANBAN_SCREEN_TOKENS;
   const [picked, setPicked] = React.useState(null);
-  const [hovered, setHovered] = React.useState(null);
 
   return (
     <div
@@ -290,8 +289,8 @@ function KanbanResolutionPrompt({ theme, issue, targetLabel, options = [], onCan
       style={{
         position: 'absolute',
         top: K.PROMPT_TOP,
-        left: -K.PROMPT_SIDE_OVERHANG,
-        right: -K.PROMPT_SIDE_OVERHANG,
+        left: 0,
+        right: 0,
         display: 'flex', flexDirection: 'column', gap: K.PROMPT_GAP,
         padding: K.PROMPT_PADDING,
         background: theme.bg.surface,
@@ -311,51 +310,7 @@ function KanbanResolutionPrompt({ theme, issue, targetLabel, options = [], onCan
         {` 拖入 ${targetLabel}`}
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-        {options.map((option) => {
-          const active = picked === option.id;
-          const live = hovered === option.id && !active;
-          return (
-            <button
-              key={option.id}
-              type="button"
-              role="radio"
-              aria-checked={active}
-              onClick={() => setPicked(option.id)}
-              onMouseEnter={() => setHovered(option.id)}
-              onMouseLeave={() => setHovered(null)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: K.PROMPT_OPTION_GAP,
-                height: K.PROMPT_OPTION_HEIGHT,
-                padding: `0 ${K.PROMPT_OPTION_PADDING_X}px`,
-                border: 'none', borderRadius: K.PROMPT_OPTION_RADIUS,
-                background: active ? theme.state.selected.bg : live ? theme.state.hover.bg : 'transparent',
-                color: active ? theme.state.selected.fg : theme.text.primary,
-                cursor: 'pointer', textAlign: 'left',
-                fontFamily: FONT_FAMILY.base,
-                ...KS_type(K.PROMPT_OPTION_TYPE),
-                transition: `background ${K.TRANSITION_MS}ms ${K.TRANSITION_EASING}`,
-              }}
-            >
-              <span style={{
-                width: K.PROMPT_RADIO_SIZE, height: K.PROMPT_RADIO_SIZE, flexShrink: 0,
-                borderRadius: RADIUS.full,
-                border: `${K.PROMPT_RADIO_BORDER}px solid ${active ? theme.state.selected.border : theme.border.input}`,
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                {active && (
-                  <span style={{
-                    width: K.PROMPT_RADIO_DOT_SIZE, height: K.PROMPT_RADIO_DOT_SIZE,
-                    borderRadius: RADIUS.full, background: theme.state.selected.border,
-                  }} />
-                )}
-              </span>
-              <span style={{ flex: 1, minWidth: 0 }}>{option.label}</span>
-              <Badge theme={theme} tone={option.tone} label="Resolution" dot={false} />
-            </button>
-          );
-        })}
-      </div>
+      <Select theme={theme} label="結案原因" placeholder="選擇結案原因" fullWidth options={options.map(option => ({ value: option.id, label: option.label }))} value={picked || ''} onChange={setPicked} />
 
       <div style={{
         ...KS_type(K.PROMPT_HINT_TYPE),
@@ -363,7 +318,7 @@ function KanbanResolutionPrompt({ theme, issue, targetLabel, options = [], onCan
         borderTop: `${K.PROMPT_DIVIDER_WIDTH}px solid ${theme.divider.base}`,
         paddingTop: K.PROMPT_GAP,
       }}>
-        {picked ? '確認後寫入 Resolution 與 Status，卡片移至目標欄。' : '終止狀態必填結案原因，未選不得送出。'}
+        {picked ? '確認後移至目標欄。' : '請先選擇結案原因。'}
       </div>
 
       <div style={{
@@ -388,7 +343,6 @@ function KanbanScreen({ theme = DEFAULT_THEME, variant = 'default' }) {
   const config = KANBAN_SCREEN_VARIANT_CONFIG[variant] || KANBAN_SCREEN_VARIANT_CONFIG.default;
 
   const [search, setSearch] = React.useState('');
-  const [source, setSource] = React.useState(config.sourceId);
   const [chips, setChips] = React.useState([
     { id: 'assignee', label: '負責人', value: '我' },
     { id: 'priority', label: '優先序', value: '高' },
@@ -397,7 +351,7 @@ function KanbanScreen({ theme = DEFAULT_THEME, variant = 'default' }) {
 
   // 欄集合與欄序由 buildKanbanColumns 產出；資料來源涉及的型別是唯一輸入。
   const columns = KS_buildKanbanColumns(config.sourceTypes);
-  const issues = KANBAN_SCREEN_ISSUES.filter((issue) => config.sourceTypes.includes(issue.type));
+  const issues = KANBAN_SCREEN_ISSUES.filter((issue) => config.sourceTypes.includes(issue.type) && `${issue.key} ${issue.title}`.toLowerCase().includes(search.toLowerCase()));
   const dragIssue = config.dragIssueKey
     ? issues.find((issue) => issue.key === config.dragIssueKey)
     : null;
@@ -425,42 +379,29 @@ function KanbanScreen({ theme = DEFAULT_THEME, variant = 'default' }) {
   };
 
   return (
-    <div style={{
-      width: K.CANVAS_WIDTH, minHeight: K.CANVAS_MIN_HEIGHT,
+    <div className="f4-design-kanban" style={{
+      width: '100%', minHeight: K.CANVAS_MIN_HEIGHT, containerType: 'inline-size',
       display: 'flex', flexDirection: 'column',
       background: theme.bg.base, color: theme.text.primary,
       fontFamily: FONT_FAMILY.base,
     }}>
-      {/* 工具列：資料來源與篩選 */}
-      <Toolbar
-        theme={theme}
-        left={
-          <React.Fragment>
-            <span style={{ ...KS_type(K.VIEW_TITLE_TYPE), color: theme.text.primary, whiteSpace: 'nowrap' }}>
-              工單看板
-            </span>
-            <Select
-              theme={theme}
-              prefix="資料來源"
-              options={KANBAN_SCREEN_SOURCES}
-              value={source}
-              onChange={setSource}
-            />
-          </React.Fragment>
+      <style>{`
+        .f4-design-board { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .f4-design-heading { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; padding: 16px ${F4_LAYOUT.pagePadding}px 12px; }
+        .f4-design-search { margin-left: auto; width: min(300px, 100%); }
+        @container (max-width: ${F4_LAYOUT.singleColumnBreakpoint}px) {
+          .f4-design-board { grid-template-columns: minmax(0, 1fr); padding: 0 16px 24px !important; }
+          .f4-design-heading { padding: 12px 16px; }
+          .f4-design-heading h1 { width: 100%; }
+          .f4-design-search { margin-left: 0; flex: 1; }
+          .f4-design-kanban .f4-issue-card { grid-template-columns: 64px minmax(0, 1fr) !important; }
         }
-        center={
-          <TextInput
-            theme={theme}
-            leadingIcon="search"
-            placeholder="搜尋工單編號或標題"
-            value={search}
-            onChange={setSearch}
-            style={{ width: K.SEARCH_WIDTH }}
-          />
-        }
-        right={<Button theme={theme} variant="ghost" iconLeft="filter" label="篩選條件" />}
-      />
-
+      `}</style>
+      <header className="f4-design-heading">
+        <h1 style={{ fontSize: 29, margin: 0 }}>工單看板</h1>
+        <div className="f4-design-search"><TextInput theme={theme} leadingIcon="search" placeholder="搜尋工單" value={search} onChange={setSearch} fullWidth /></div>
+        <button type="button" aria-label="重新整理看板" title="重新整理看板" style={{ width: F4_LAYOUT.touchTarget, height: F4_LAYOUT.touchTarget, border: 0, borderRadius: RADIUS.sm, background: theme.bg.surface_hover, color: theme.text.secondary }}><F4Icon name="refresh" /></button>
+      </header>
       {/* 已套用篩選 + 合欄說明 */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: K.FILTER_BAR_GAP, flexWrap: 'wrap',
@@ -476,7 +417,7 @@ function KanbanScreen({ theme = DEFAULT_THEME, variant = 'default' }) {
           />
         ))}
         <span style={{ marginLeft: 'auto', ...KS_type(K.META_TYPE), color: theme.text.tertiary }}>
-          {`資料來源含 ${config.sourceTypes.length} 種型別，同名狀態合為同一欄 · 共 ${columns.length} 欄`}
+          {`${issues.length} 張工單 · ${columns.length} 欄`}
         </span>
       </div>
 
@@ -486,9 +427,8 @@ function KanbanScreen({ theme = DEFAULT_THEME, variant = 'default' }) {
       </div>
 
       {/* 看板欄區：依 Status 分欄，欄數不隨結案原因增加 */}
-      <div style={{
-        position: 'relative', flex: 1,
-        display: 'flex', alignItems: 'flex-start', gap: K.BOARD_GAP,
+      <div className="f4-design-board" style={{
+        position: 'relative', flex: 1, alignItems: 'start', gap: F4_LAYOUT.boardGap,
         padding: `0 ${K.PADDING_X}px ${K.PADDING_BOTTOM}px`,
         overflowX: 'auto',
       }}>
@@ -507,7 +447,7 @@ function KanbanScreen({ theme = DEFAULT_THEME, variant = 'default' }) {
             <div
               key={column.id}
               style={{
-                position: 'relative', flexShrink: 0,
+                position: 'relative', minWidth: 0,
                 zIndex: isPromptAnchor ? K.Z_ANCHOR_COLUMN : undefined,
               }}
             >

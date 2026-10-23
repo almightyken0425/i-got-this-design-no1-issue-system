@@ -171,6 +171,7 @@ function IssueDetailScreen({ variant = 'default', theme = DEFAULT_THEME }) {
         .design-issue-editable:hover .design-edit-hint, .design-issue-editable:focus-visible .design-edit-hint { opacity: 1; }
         .design-issue-editable:hover { background: ${theme.bg.surface_hover} !important; }
         .issue-design * { box-sizing: border-box; }
+        .issue-design select { width: 100%; }
         .issue-design-content { max-width: ${T.CONTENT_MAX_WIDTH}px; margin: 0 auto; padding: ${T.CONTENT_PADDING_Y}px ${T.CONTENT_PADDING_X}px; }
         .issue-design-body { display: grid; grid-template-columns: ${T.DETAIL_COLUMNS}; gap: ${T.CONTENT_GAP}px; }
         .issue-design-properties { grid-column: 2; grid-row: 1; }
@@ -179,6 +180,7 @@ function IssueDetailScreen({ variant = 'default', theme = DEFAULT_THEME }) {
           .design-edit-hint { opacity: 1; }
           .issue-design-content { padding: ${T.MOBILE_PADDING}px; }
           .issue-design-body { display: flex; flex-direction: column; gap: 0; }
+          .issue-design-panel { padding: 16px !important; }
         }
       `}</style>
       <div className="issue-design-content">

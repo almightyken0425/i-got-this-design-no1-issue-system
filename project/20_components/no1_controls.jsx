@@ -226,128 +226,16 @@ function IconButton({
 //   value      受控選中值；找不到對應 option 時顯示 placeholder
 //   onChange   (value) => void
 //   fullWidth  撐滿容器寬度；窄欄表單直向堆疊多個 Select 時用，比照 Button / TextInput 同名 prop
-function Select({
-  prefix, options = [], value, placeholder = '請選擇', onChange,
-  size = 'md', disabled = false, fullWidth = false, theme = DEFAULT_THEME, style = {},
-}) {
-  const [open, setOpen]   = React.useState(false);
-  const [hover, setHover] = React.useState(false);
-  const [focus, setFocus] = React.useState(false);
-  const wrapRef = React.useRef(null);
-
-  // 點外面或按 Escape 收合。open 才掛 listener，收合時解除。
-  React.useEffect(() => {
-    if (!open) return;
-    const onDown = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };
-    const onKey  = (e) => { if (e.key === 'Escape') setOpen(false); };
-    document.addEventListener('mousedown', onDown);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onDown);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [open]);
-
-  const selected = options.find(o => o.value === value);
-  const live     = (hover || open) && !disabled;
-  const fg       = disabled ? theme.state.disabled.fg : theme.text.primary;
-  const border   = disabled ? theme.border.base
-                 : (open ? theme.state.focus.ring : theme.border.input);
-
-  return (
-    <div
-      ref={wrapRef}
-      style={{
-        position: 'relative', display: 'inline-flex',
-        width: fullWidth ? '100%' : undefined,
-        ...style,
-      }}
-    >
-      <button
-        onClick={() => { if (!disabled) setOpen(o => !o); }}
-        disabled={disabled}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}
-        onFocus={() => setFocus(true)}
-        onBlur={() => setFocus(false)}
-        style={{
-          display: 'inline-flex', alignItems: 'center', gap: SELECT_TOKENS.GAP,
-          height: SELECT_TOKENS.HEIGHT[size],
-          width: fullWidth ? '100%' : undefined,
-          padding: `0 ${SELECT_TOKENS.PADDING_RIGHT}px 0 ${SELECT_TOKENS.PADDING_LEFT}px`,
-          position: 'relative',
-          borderRadius: SELECT_TOKENS.RADIUS,
-          border: `${SELECT_TOKENS.BORDER_WIDTH}px solid ${border}`,
-          background: live ? theme.bg.surface_hover : theme.bg.surface,
-          color: fg,
-          cursor: disabled ? 'not-allowed' : 'pointer',
-          fontFamily: FONT_FAMILY.base,
-          ...textStyle(SELECT_TOKENS.TEXT[size]),
-          whiteSpace: 'nowrap',
-          outline: 'none',
-          boxShadow: focus && !disabled ? controlFocusRing(theme) : 'none',
-          transition: `background ${SELECT_TOKENS.TRANSITION_MS}ms ${CONTROL_SHARED_TOKENS.TRANSITION_EASING}`,
-        }}
-      >
-        {prefix && (
-          <span style={{
-            ...textStyle(SELECT_TOKENS.PREFIX_TEXT),
-            color: disabled ? theme.state.disabled.fg : theme.text.tertiary,
-          }}>
-            {prefix}:
-          </span>
-        )}
-        <span style={{ color: selected ? fg : theme.text.tertiary }}>
-          {selected ? selected.label : placeholder}
-        </span>
-        <span style={{
-          position: 'absolute', top: 0, bottom: 0, right: SELECT_TOKENS.PADDING_LEFT,
-          display: 'flex', alignItems: 'center',
-        }}>
-          <ControlGlyph
-            name={open ? 'chevron-up' : 'chevron-down'}
-            size={SELECT_TOKENS.CHEVRON_SIZE}
-            color={disabled ? theme.state.disabled.fg : theme.text.tertiary}
-          />
-        </span>
-      </button>
-
-      {open && (
-        <div
-          role="listbox"
-          style={{
-            position: 'absolute', top: '100%', left: 0, zIndex: 50,
-            marginTop: SELECT_TOKENS.MENU.OFFSET,
-            width: fullWidth ? '100%' : undefined,
-            minWidth: SELECT_TOKENS.MENU.MIN_WIDTH,
-            maxHeight: SELECT_TOKENS.MENU.MAX_HEIGHT,
-            overflowY: 'auto',
-            padding: SELECT_TOKENS.MENU.PADDING,
-            borderRadius: SELECT_TOKENS.MENU.RADIUS,
-            border: `${SELECT_TOKENS.BORDER_WIDTH}px solid ${theme.border.base}`,
-            background: theme.bg.surface,
-            boxShadow: controlShadow(theme, SELECT_TOKENS.MENU.ELEVATION),
-            fontFamily: FONT_FAMILY.base,
-          }}
-        >
-          {options.map(o => (
-            <SelectOption
-              key={o.value}
-              option={o}
-              selected={o.value === value}
-              theme={theme}
-              onPick={() => { onChange && onChange(o.value); setOpen(false); }}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
+function Select({ prefix, options = [], value, placeholder = '請選擇', onChange, size = 'md', disabled = false, fullWidth = false, theme = DEFAULT_THEME, style = {}, label }) {
+  return <label style={{ display: 'inline-flex', alignItems: 'center', gap: SPACING.sm, minWidth: 0, maxWidth: '100%', width: fullWidth ? '100%' : undefined, ...style }}>
+    {prefix && <span style={{ color: theme.text.secondary }}>{prefix}</span>}
+    <select aria-label={label || prefix || placeholder} disabled={disabled} value={options.some(o => o.value === value) ? value : ''} onChange={e => onChange && onChange(e.target.value)} style={{ minWidth: 0, maxWidth: '100%', flex: 1, minHeight: SELECT_TOKENS.HEIGHT[size], padding: '5px 10px', borderRadius: SELECT_TOKENS.RADIUS, border: `1px solid ${theme.border.input}`, background: theme.bg.surface, color: theme.text.primary, fontFamily: FONT_FAMILY.base }}>
+      {!options.some(o => o.value === '') && <option value="" disabled>{placeholder}</option>}
+      {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+    </select>
+  </label>;
 }
 
-// Select 的單列選項；hover 與選中兩態分開，選中列以 trailing check 表達。
 function SelectOption({ option, selected, theme, onPick }) {
   const [hover, setHover] = React.useState(false);
   return (
@@ -692,3 +580,23 @@ Object.assign(window, {
   Button, IconButton, Select, TextInput, Checkbox, Badge, Avatar, Chip,
   avatarInitials,
 });
+
+const F4_PATHS = {
+  list: 'M5 6h15M5 12h15M5 18h15M2 6h.01M2 12h.01M2 18h.01',
+  kanban: 'M4 4v15M12 4v10M20 4v15M2 4h4M10 4h4M18 4h4',
+  timeline: 'M3 4v16h18M7 7h7M10 12h9M6 17h7',
+  types: 'M12 2 3 7l9 5 9-5-9-5ZM3 12l9 5 9-5M3 17l9 5 9-5',
+  workflow: 'M3 6h7v5h10M16 7l4 4-4 4M3 18h7v-7',
+  organization: 'M12 3v6M5 15v-6h14v6M2 19h6M9 3h6M16 19h6M12 9v10',
+  account: 'M8 6a4 4 0 1 0 8 0a4 4 0 1 0-8 0M4 21v-2a8 8 0 0 1 16 0v2',
+  plus: 'M12 4v16M4 12h16',
+  refresh: 'M20 7a9 9 0 1 0 1 9M20 2v5h-5',
+  close: 'M5 5l14 14M5 19 19 5',
+  arrow: 'M19 12H5M11 6l-6 6 6 6',
+  issue: 'M6 2h9l5 5v15H6zM15 2v6h5M10 12h6M10 16h6',
+  history: 'M3 6v5h5M3 11a9 9 0 1 1 2 8M12 7v6l4 2',
+  relation: 'M9 14l6-6M8 17l-1 1a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0M16 7l1-1a4 4 0 0 1 6 6l-5 5a4 4 0 0 1-6 0',
+};
+
+function F4Icon({ name, size = 20 }) { return <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d={F4_PATHS[name] || F4_PATHS.issue} /></svg>; }
+Object.assign(window, { F4Icon });

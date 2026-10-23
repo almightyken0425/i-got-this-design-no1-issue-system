@@ -1,0 +1,56 @@
+[
+  {
+    "id": "shell-linear",
+    "area": "外殼",
+    "title": "Linear · 連續外框",
+    "note": "借用側欄與頂欄連成一體的比例，讓內容區保持安靜。",
+    "source": "https://linear.app/now/how-we-redesigned-the-linear-ui",
+    "image": "https://webassets.linear.app/images/ornj730p/production/9b91020243984487b4e0cbe72278dd1acd7f9c57-2352x1380.png?fm=png",
+    "file": "shell-linear.png"
+  },
+  {
+    "id": "shell-plane",
+    "area": "外殼",
+    "title": "Plane · 情境側欄",
+    "note": "借用側欄內全域入口與目前專案的分組，讓導航層級容易辨認。",
+    "source": "https://docs.plane.so/core-concepts/projects/project-overview",
+    "image": "https://media.docs.plane.so/projects/access-project-overview.webp",
+    "file": "shell-plane.webp"
+  },
+  {
+    "id": "board-linear",
+    "area": "看板",
+    "title": "Linear · 橫向分組",
+    "note": "借用橫向分組與一致卡片節奏，讓同階段的內容能連續掃讀。",
+    "source": "https://linear.app/docs/board-layout",
+    "image": "https://webassets.linear.app/images/ornj730p/production/238e212208818157d687416737b7e922aef7b14f-2560x1440.png?auto=format&dpr=2&q=95&w=1440",
+    "file": "board-linear.png"
+  },
+  {
+    "id": "board-asana",
+    "area": "看板",
+    "title": "Asana · 卡片層級",
+    "note": "借用卡片內主內容與次要資訊的間距，讓圖像與標題先被看見。",
+    "source": "https://asana.com/features/project-management/project-views",
+    "image": "https://assets.asana.biz/transform/709c89c6-2261-4d83-ab84-592eccfd7b91/web-features-ProjectViews-Board-628x418-en_us-1?format=webp&io=transform%3Afill%2Cwidth%3A2560",
+    "file": "board-asana.webp"
+  },
+  {
+    "id": "detail-linear",
+    "area": "工單詳情",
+    "title": "Linear · 右側屬性",
+    "note": "借用右側獨立的關聯與屬性區，讓主內容維持連續閱讀。",
+    "source": "https://linear.app/docs/issue-property",
+    "image": "https://webassets.linear.app/images/ornj730p/production/4d5b81c2af018955702e62e2e78d40cc620cc737-946x448.png?auto=format&dpr=2&q=95&w=1440",
+    "file": "detail-linear.png"
+  },
+  {
+    "id": "detail-plane",
+    "area": "工單詳情",
+    "title": "Plane · 標題下的操作",
+    "note": "借用標題下方的常用欄位與可收合分組，縮短閱讀後的操作距離。",
+    "source": "https://plane.so/blog/new-work-item-detail-view-custom-relations-and-more",
+    "image": "https://plane.so/api/media/file/blog-work-item-custom-relations-light-desktop.2x-2-1920x1155.webp",
+    "file": "detail-plane.webp"
+  }
+]

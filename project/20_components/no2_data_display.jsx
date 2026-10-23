@@ -505,7 +505,7 @@ function KanbanColumn({ theme, title, count, isDropTarget = false, maxHeight, ch
       onDragOver={onDragOver}
       onDrop={onDrop}
       style={{
-        width: K.COLUMN_WIDTH, minWidth: K.COLUMN_MIN_WIDTH, flexShrink: 0,
+        width: '100%', minWidth: 0, boxSizing: 'border-box', flexShrink: 0,
         display: 'flex', flexDirection: 'column',
         background: isDropTarget ? c.dropTargetBg : c.columnBg,
         border: `${isDropTarget ? K.DROP_TARGET_BORDER_WIDTH : K.COLUMN_BORDER_WIDTH}px ${isDropTarget ? 'dashed' : 'solid'} ${isDropTarget ? c.dropTargetBorder : c.columnBorder}`,
@@ -570,7 +570,7 @@ function KanbanCard({
   const dueTone = due && due.tone === 'overdue' ? c.overdueFg : due && due.tone === 'soon' ? c.dueSoonFg : c.cardMetaFg;
 
   return (
-    <article
+    <article className="f4-issue-card"
       draggable={draggable && interactive}
       tabIndex={interactive ? 0 : -1}
       aria-disabled={disabled || undefined}
@@ -588,7 +588,7 @@ function KanbanCard({
       }}
       style={{
         position: 'relative',
-        display: 'flex', flexDirection: 'column', gap: K.CARD_ROW_GAP,
+        display: 'grid', gridTemplateColumns: `${F4_LAYOUT.thumbnailWidth}px minmax(0, 1fr)`, columnGap: SPACING.md, minHeight: F4_LAYOUT.cardMinHeight, boxSizing: 'border-box', alignItems: 'center',
         padding: `${K.CARD_PADDING_Y}px ${K.CARD_PADDING_X}px`,
         background: c.cardBg,
         border: `${K.CARD_BORDER_WIDTH}px solid ${borderColor}`,
@@ -603,6 +603,8 @@ function KanbanCard({
         ...(focus ? DD_focusStyle(c, K.CARD_FOCUS_RING_WIDTH, K.CARD_FOCUS_RING_OFFSET) : null),
       }}
     >
+      <div aria-hidden="true" style={{ alignSelf: 'stretch', display: 'grid', placeItems: 'center', minHeight: F4_LAYOUT.thumbnailHeight, borderRadius: F4_LAYOUT.thumbnailRadius, color: theme.primary.main, background: theme.state.selected.bg }}><F4Icon name="issue" size={38} /></div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: K.CARD_ROW_GAP, minWidth: 0 }}>
       {/* 編號 + 狀態 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: SPACING.xs, minWidth: 0 }}>
         <span style={{
@@ -667,6 +669,7 @@ function KanbanCard({
           )}
         </div>
       )}
+      </div>
     </article>
   );
 }

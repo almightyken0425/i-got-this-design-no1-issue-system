@@ -116,13 +116,13 @@ const ISSUE_DETAIL_CHANGELOG_DEFAULT = [
 function IssueDetailSectionPanel({ theme, title, children }) {
   const T = ISSUE_DETAIL_SCREEN_TOKENS;
   return (
-    <div style={{
+    <div className="issue-design-panel" style={{
       display: 'flex', flexDirection: 'column', gap: T.PANEL_GAP, minWidth: 0,
-      padding: `${T.PANEL_PADDING}px 0`,
-      background: theme.bg.surface,
-      borderTop: `${T.PANEL_BORDER_WIDTH}px solid ${theme.border.base}`,
+      padding: T.PANEL_PADDING, marginBottom: T.BODY_GAP, borderRadius: T.PANEL_RADIUS,
+      background: theme.bg.surface_hover,
+      border: `${T.PANEL_BORDER_WIDTH}px solid ${theme.border.base}`,
     }}>
-      <h2 style={{ ...issueDetailType(T.PANEL_TITLE_TYPE), color: theme.text.primary, margin: 0 }}>{title}</h2>
+      <h2 style={{ ...issueDetailType(T.PANEL_TITLE_TYPE), color: theme.text.primary, margin: 0, display: 'flex', alignItems: 'center', gap: SPACING.sm }}><F4Icon name={title.includes('關聯') ? 'relation' : title.includes('歷史') ? 'history' : 'issue'} />{title}</h2>
       {children}
     </div>
   );
@@ -204,97 +204,15 @@ function IssueDetailEditableField({ theme, value, placeholder, disabled = false,
 // 「終止狀態且結案原因未提供則禁止」。errorMessage 給了時取代 hint 顯示，
 // 示意 Spec「操作失敗：顯示禁止原因提示」；此時 picked 可能仍保留使用者
 // 上次的選擇，讓使用者看得到自己選了什麼、以便重選或直接取消。
-function IssueDetailResolutionPanel({
-  theme, targetLabel, options = [], picked = null, submitting = false,
-  errorMessage, onPick, onCancel, onConfirm,
-}) {
-  const T = ISSUE_DETAIL_SCREEN_TOKENS;
-  const [hoveredId, setHoveredId] = React.useState(null);
-
-  return (
-    <div
-      role="dialog"
-      aria-label="選擇結案原因"
-      style={{
-        display: 'flex', flexDirection: 'column', gap: T.RESOLUTION_PANEL_GAP,
-        padding: T.RESOLUTION_PANEL_PADDING,
-        background: theme.bg.surface_dim,
-        border: `${T.RESOLUTION_PANEL_BORDER_WIDTH}px solid ${theme.border.base}`,
-        borderRadius: T.RESOLUTION_PANEL_RADIUS,
-        fontFamily: FONT_FAMILY.base,
-      }}
-    >
-      <span style={{ ...issueDetailType(T.RESOLUTION_PROMPT_TYPE), color: theme.text.secondary }}>
-        {`轉為「${targetLabel}」須選擇結案原因`}
-      </span>
-
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-        {options.map((option) => {
-          const active = picked === option.id;
-          const live = hoveredId === option.id && !active;
-          return (
-            <button
-              key={option.id}
-              type="button"
-              role="radio"
-              aria-checked={active}
-              disabled={submitting}
-              onClick={() => onPick && onPick(option.id)}
-              onMouseEnter={() => setHoveredId(option.id)}
-              onMouseLeave={() => setHoveredId(null)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: T.RESOLUTION_OPTION_GAP,
-                height: T.RESOLUTION_OPTION_HEIGHT,
-                padding: `0 ${T.RESOLUTION_OPTION_PADDING_X}px`,
-                border: 'none', borderRadius: T.RESOLUTION_OPTION_RADIUS,
-                background: active ? theme.state.selected.bg : live ? theme.state.hover.bg : 'transparent',
-                color: active ? theme.state.selected.fg : theme.text.primary,
-                cursor: submitting ? 'not-allowed' : 'pointer', textAlign: 'left',
-                fontFamily: FONT_FAMILY.base,
-                ...issueDetailType(T.RESOLUTION_OPTION_TYPE),
-              }}
-            >
-              <span style={{
-                width: T.RESOLUTION_RADIO_SIZE, height: T.RESOLUTION_RADIO_SIZE, flexShrink: 0,
-                borderRadius: RADIUS.full,
-                border: `${T.RESOLUTION_RADIO_BORDER}px solid ${active ? theme.state.selected.border : theme.border.input}`,
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                {active && (
-                  <span style={{
-                    width: T.RESOLUTION_RADIO_DOT_SIZE, height: T.RESOLUTION_RADIO_DOT_SIZE,
-                    borderRadius: RADIUS.full, background: theme.state.selected.border,
-                  }} />
-                )}
-              </span>
-              <span style={{ flex: 1, minWidth: 0 }}>{option.label}</span>
-              <Badge theme={theme} tone={option.tone} label="Resolution" dot={false} />
-            </button>
-          );
-        })}
-      </div>
-
-      <div style={{
-        ...issueDetailType(T.RESOLUTION_HINT_TYPE),
-        color: errorMessage ? theme.status.error_fg : picked ? theme.text.tertiary : theme.status.warning_fg,
-      }}>
-        {errorMessage || (picked ? '確認後寫入 Resolution 與 Status。' : '終止狀態必填結案原因，未選不得確認。')}
-      </div>
-
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: T.RESOLUTION_FOOTER_GAP }}>
-        <Button theme={theme} variant="ghost" size="sm" label="取消" disabled={submitting} onClick={onCancel} />
-        <Button
-          theme={theme} variant="primary" size="sm" label="確認結案"
-          loading={submitting} disabled={!picked}
-          onClick={() => picked && onConfirm && onConfirm(picked)}
-        />
-      </div>
-    </div>
-  );
+function IssueDetailResolutionPanel({ theme, targetLabel, options, picked, errorMessage, onPick, onCancel, onConfirm }) {
+  return <div role="dialog" aria-label="選擇結案原因" style={{ padding: SPACING.lg, marginBottom: SPACING.lg, borderRadius: RADIUS.md, background: theme.bg.surface_hover }}>
+    <p>轉為 {targetLabel}</p>
+    <Select theme={theme} label="結案原因" placeholder="選擇結案原因" value={picked || ''} options={options.map(o => ({ value: o.id, label: o.label }))} onChange={onPick} />
+    {errorMessage && <p role="alert" style={{ color: theme.status.error_fg }}>{errorMessage}</p>}
+    <div style={{ display: 'flex', gap: SPACING.sm, marginTop: SPACING.md }}><Button theme={theme} variant="ghost" label="取消" onClick={onCancel} /><Button theme={theme} label="確認結案" disabled={!picked} onClick={() => onConfirm(picked)} /></div>
+  </div>;
 }
 
-// ─── IssueDetailRelationGroup ─── 關聯區一個分組 ─────────────────
-// 標題 + 對側工單編號清單；items 為空時不畫，是否整體空狀態交呼叫端決定。
 function IssueDetailRelationGroup({ theme, title, items = [] }) {
   const T = ISSUE_DETAIL_SCREEN_TOKENS;
   if (items.length === 0) return null;
