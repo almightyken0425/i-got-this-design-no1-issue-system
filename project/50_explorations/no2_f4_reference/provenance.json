@@ -1,0 +1,18 @@
+{
+  "source": "~/Doc/project_management_prototype",
+  "source_route": "prototype.html?theme=slate&variant=f4",
+  "selected": "01-F4",
+  "captured": "2026-10-14",
+  "design_base": "2795205",
+  "note": "F4 selection without checkbox or radio. Controller reduced to F4, local storage isolated. Source hashes identify provenance, not a claim of byte-identical derived assets.",
+  "source_sha256": {
+    "data.js": "f2d697da0aa1787ee5c8f91b8d662dd817565340c3219295b07e99c4be77f652",
+    "prototype.js": "062073f7ba19aa10b5f317a8fcedd742908bffac21c7d6d7ab03f14f7b79d4d6",
+    "prototype.css": "b7fc7ab7d8036f6246b25af80ae49c383d1b275480d36b2d3bcb8e742837de20",
+    "slate_mono.js": "10f34980f685998d5fe223589bfa7184511b648ea003f4492345ee46e14def43",
+    "slate_mono.css": "28dc1cac2579f51deb1a8742610e19b8db342055ce8bd3b218c9235803231449",
+    "slate_mono_blue.css": "4e606ef3da1475594b648dad0be351a9162164878cf2f4e246b9467d638185e4",
+    "slate_component_forms.css": "651bc5109710af6354a55b204ec14e4237b04ed6a88daa760dd9944ee35c199f"
+  },
+  "source_status": "原始目錄已依使用者指示刪除，8891 預覽服務已停止。source 與 source_sha256 保留作為歷史追溯。"
+}

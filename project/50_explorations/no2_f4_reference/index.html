@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>I Got This · F4 改版基準</title>
+  <link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="reference.css">
+</head>
+<body>
+  <header class="reference-header">
+    <a class="reference-brand" href="#canvas">IG<span> / </span>F4</a>
+    <div><h1>緊湊模組</h1><p>I Got This · 已選視覺方向</p></div>
+    <a class="source-link" href="../../i-got-this.html#explorations/f4-reference/baseline">Design Canvas ↗</a>
+  </header>
+  <nav class="reference-nav" aria-label="參考內容">
+    <a href="#canvas">畫板</a><a href="#standards">標準</a><a href="#adoption">套用</a>
+    <a class="preview-link" href="prototype.html" target="_blank" rel="noopener">獨立預覽 ↗</a>
+  </nav>
+  <main>
+    <section id="canvas" aria-labelledby="canvas-title">
+      <div class="section-heading"><div><span class="eyebrow">01–F4</span><h2 id="canvas-title">圖像在前，文字到位。</h2></div><p>灰藍配色 · 橫式卡片 · 階段模組</p></div>
+      <div class="artboard"><iframe src="prototype.html" title="F4 緊湊模組互動畫板"></iframe></div>
+      <p class="caption">保留選定 F4 的形式。畫板中的 forma、網站改版、人物與四階段都是示範，沒有連接 I Got This 資料。</p>
+    </section>
+    <section id="standards" hidden aria-labelledby="standards-title">
+      <div class="section-heading"><div><span class="eyebrow">DESIGN RULES</span><h2 id="standards-title">同一個方向，整套延伸。</h2></div><p>2026.10.14 · 使用者選定</p></div>
+      <div class="rule-banner"><strong>禁止 checkbox、radio 及仿造外觀。</strong><span>也不以空心方框、空心圓圈或勾選圈表示任務完成與選取。</span></div>
+      <div class="rule-grid">
+        <article class="rule-card wide"><h3>01 / 配色角色</h3><p>白與冷灰承載內容。藍色只標示主要動作、目前位置與重點。狀態靠形狀、分組與短標籤辨識。</p><div id="swatches" class="swatches"></div><p class="caption">色票直接讀取 tokens.css，同一份值也套用在畫板。SVG 插畫的灰藍明暗只屬素材。</p></article>
+        <article class="rule-card"><h3>02 / 文字與圖像</h3><ul><li>標題、狀態、日期保留必要文字，刪除重複的說明句。</li><li>常用動作採圖示。每個圖示按鈕都有可及名稱與滑入、聚焦提示。</li><li>縮圖使用真實附件或內容預覽。沒有素材時改用型別圖示，不為填空捏造插畫。</li><li>長標題在卡片截斷，完整名稱可從詳情與輔助技術讀取。不可改寫真實工單標題。</li><li>表單標籤、錯誤與權限原因保留精簡文字。危險動作不能只靠圖示猜測。</li></ul></article>
+        <article class="rule-card"><h3>03 / 元件形式</h3><dl class="metrics"><dt>階段模組</dt><dd data-token="radius-module"></dd><dt>橫式卡片</dt><dd data-token="radius-card"></dd><dt>圖示按鈕</dt><dd data-token="radius-control"></dd><dt>內容縮圖</dt><dd data-token="radius-thumbnail"></dd></dl><p>淺灰模組裡放白卡片。縮圖在左，短標題在右，日期與人員退居第二層。薄邊線與極淡陰影只用來分層。</p><p class="caption">以上為桌面基準。總覽容器 17px，窄版模組 16px、進度面板 15px。不要把所有圓角改成同一值。</p></article>
+        <article class="rule-card"><h3>04 / 比例與結構</h3><ul><li>桌面左側 56px 圖示導覽，工作區與側欄間隔 22px。</li><li>總覽高度 174px，進度區 185px，剩餘空間給主要內容。</li><li>看板採兩欄階段模組，模組間距 17px。階段數由真實流程決定。</li><li>橫式卡片最低 82px，縮圖 89 × 64px。標題 13px，主標題 29px。</li><li>字體採系統黑體與 PingFang TC。重要資訊不能照抄原型中 10px 的示範輔助字級，正式畫面優先可讀性。</li></ul></article>
+        <article class="rule-card"><h3>05 / 動作與狀態</h3><ul><li>點卡片開詳情。狀態從可執行的轉換選單更改，不能自由跳過 workflow 限制。</li><li>切換檢視用頁籤。單選設定用下拉選單，多選使用加入／移除操作與已選項目，不內藏 checkbox 或 radio。</li><li>布林欄位以目前值加變更選單表達。完成狀態以分組和封存圖示表達，不放勾選控制。</li><li>載入、空白、錯誤、無權限、儲存中都要有狀態。數字不能用假資料補齊。</li><li>鍵盤能進出選單與詳情，關閉後焦點回原入口。減少動態偏好下取消裝飾位移。</li></ul></article>
+        <article class="rule-card"><h3>06 / 尺寸與可用性</h3><ul><li>800px 以下導覽移到底部，540px 以下階段模組改單欄。</li><li>窄版可收起次要資訊，但詳情仍可取得完整資料。</li><li>觸控版擴大點擊區，避免把原型 38px 圖示按鈕直接當成唯一觸控目標。</li><li>必驗鍵盤、320px 與 390px 寬、長標題、200% 放大及空資料。</li><li>前景與底色須保持足夠對比。裝飾邊線不作唯一狀態提示。</li></ul></article>
+      </div>
+    </section>
+    <section id="adoption" hidden aria-labelledby="adoption-title">
+      <div class="section-heading"><div><span class="eyebrow">I GOT THIS</span><h2 id="adoption-title">把形式套進既有能力。</h2></div><p>先對齊 Design，再改 Web</p></div>
+      <div class="rule-banner"><strong>本次已選的是視覺方向。</strong><span>現有功能、資料、權限與流程仍以產品與 Spec 為準。舊暖色規範在這次改版方向中由 F4 覆蓋，正式 token 尚待遷移。</span></div>
+      <div class="table-wrap"><table><thead><tr><th>現有畫面</th><th>沿用 F4</th><th>必須保留</th></tr></thead><tbody>
+        <tr><td>App Shell</td><td>窄圖示列、白底工作區、清楚選中態</td><td>容器樹、目前層級、檢視入口。八層容器不能壓成四個圖示。</td></tr>
+        <tr><td>Kanban</td><td>淺灰階段模組、橫式卡片、型別圖示與人員</td><td>真實分組、可用狀態、排序、拖曳及流程限制。不能寫死四階段。</td></tr>
+        <tr><td>List</td><td>少文字工具列、簡潔列、視覺分組</td><td>欄位設定、條件篩選、排序、資料來源、日曆與分享能力。</td></tr>
+        <tr><td>Issue Detail</td><td>精簡標頭、清楚區塊、同一套欄位外觀</td><td>自訂欄位、關聯、歷史、必填驗證與可執行轉換。</td></tr>
+        <tr><td>Dev Order</td><td>灰藍表面、圖示工具、統一選中態</td><td>表格與甘特圖的時間、依賴和排序語意。不可硬套卡片看板。</td></tr>
+        <tr><td>型別／流程／組織管理</td><td>同一套表單、選單、模組容器</td><td>定義層級、欄位形狀、不可刪系統欄位、權限及破壞性操作確認。</td></tr>
+        <tr><td>Login／Register</td><td>字體、灰藍配色、簡潔控制</td><td>登入／註冊表單、驗證回饋與既有認證流程。</td></tr>
+      </tbody></table></div>
+      <div class="rule-grid">
+        <article class="rule-card"><h3>從哪裡接手</h3><p>先讀 <a href="README.md">接續說明</a>。它列出工作區、來源、決策優先順序、跨層對應與分批驗收方式。</p><p>Design 的 Foundations、Components、Screens 是正式落地位置。此探索包保留選定樣貌，不能直接把示範控制器搬進產品。</p><p>另有進行中的 issue-type-behavior 主題，開始改版前先核對相關差異，保留其功能成果。</p></article>
+        <article class="rule-card"><h3>下一個 session</h3><p>將 README 的接續提示貼到新 session。它會引導先盤點現有畫面，再以外殼、看板、詳情做第一批可比較成果。</p><a class="action-link" href="README.md">開啟接續說明 ↗</a><p class="caption">本交付包含設計參考與標準。I Got This 的實際畫面尚未改版。</p></article>
+      </div>
+    </section>
+  </main>
+  <footer class="reference-footer"><span>F4 / SELECTED DIRECTION</span><a href="README.md">接續說明</a><a href="provenance.json">來源紀錄</a></footer>
+  <script src="reference.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+/* Candidate values from approved F4. Promote into Foundations before product implementation. */
+:root {
+ --f4-bg:#ffffff; --f4-surface:#ffffff; --f4-surface-soft:#f8f9fb;
+ --f4-ink:#2c3441; --f4-muted:#677384; --f4-line:#e5e8ed;
+ --f4-accent:#4663d2; --f4-accent-soft:#edf0fc;
+ --f4-radius-module:18px; --f4-radius-card:11px; --f4-radius-control:10px;
+ --f4-radius-thumbnail:8px; --f4-radius-overview:17px;
+ --f4-font:-apple-system,BlinkMacSystemFont,"Helvetica Neue","PingFang TC",sans-serif;
+}
+body.theme-slate.slate-variant-f4 {
+ --bg:var(--f4-bg); --surface:var(--f4-surface); --surface-soft:var(--f4-surface-soft);
+ --ink:var(--f4-ink); --muted:var(--f4-muted); --line:var(--f4-line);
+ --accent:var(--f4-accent); --accent-soft:var(--f4-accent-soft); font-family:var(--f4-font);
+}
+body.slate-variant-f4 .mono-column{border-radius:var(--f4-radius-module)}
+body.slate-variant-f4 .mono-task{border-radius:var(--f4-radius-card)}
+body.slate-variant-f4 .mono-icon,body.slate-variant-f4 .mono-view .mono-icon{border-radius:var(--f4-radius-control)}
+body.slate-variant-f4 .mono-thumbnail{border-radius:var(--f4-radius-thumbnail)}
+body.slate-variant-f4 .mono-hero,body.slate-variant-f4 .mono-progress-card{border-radius:var(--f4-radius-overview)}
+body.slate-variant-f4 .mono-list .mono-thumbnail{border-radius:7px}
+body.slate-variant-f4 .mono-dock .mono-icon{border-radius:11px}
+@media(max-width:540px){body.slate-variant-f4 .mono-column{border-radius:16px}body.slate-variant-f4 .mono-progress-card{border-radius:15px}}
